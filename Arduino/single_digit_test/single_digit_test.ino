@@ -46,6 +46,7 @@ void loop() {
         D = 1; C = 0; B = 0; A = 1;
         break;
     }
+    
     digitalWrite(pinA, A);
     digitalWrite(pinB, B);
     digitalWrite(pinC, C);
