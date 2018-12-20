@@ -13,7 +13,10 @@
 typedef struct{
   int pinA, pinB, pinC, pinD;
   int val = 0;
+  int flag = 0;
 } Nixie_t;
+
+Nixie_t tube1, tube2, tube3, tube4, tube5, tube6;
 
 /*******************************************************************************
  * Function Definitions                                                        *
@@ -35,21 +38,18 @@ void set_nixie_tube(Nixie_t* x, int num){         // Function Definition
 }
 
 /*******************************************************************************
- * Assigning Pins to Tubes                                                     *
- *******************************************************************************/
-
-Nixie_t tube1 = {.pinA = 50, .pinB = 51, .pinC = 52, .pinD = 53}; // second digit 2
-Nixie_t tube2 = {.pinA = 46, .pinB = 47, .pinC = 48, .pinD = 49}; // second digit 1
-Nixie_t tube3 = {.pinA = 42, .pinB = 43, .pinC = 44, .pinD = 45}; // minute digit 2
-Nixie_t tube4 = {.pinA = 38, .pinB = 39, .pinC = 40, .pinD = 41}; // minute digit 1
-Nixie_t tube5 = {.pinA = 34, .pinB = 35, .pinC = 36, .pinD = 37}; // hour digit 2
-Nixie_t tube6 = {.pinA = 30, .pinB = 31, .pinC = 32, .pinD = 33}; // hour digit 1
-
-/*******************************************************************************
  * Main Function                                                               *
  *******************************************************************************/
 
 void setup(){
+  /* Setting pins for the BCD outputs */
+  tube1.pinA = 50; tube1.pinB = 51; tube1.pinC = 52; tube1.pinD = 53;
+  tube2.pinA = 46, tube2.pinB = 47, tube2.pinC = 48, tube2.pinD = 49;
+  tube3.pinA = 42, tube3.pinB = 43, tube3.pinC = 44, tube3.pinD = 45;
+  tube4.pinA = 38, tube4.pinB = 39, tube4.pinC = 40, tube4.pinD = 41;
+  tube5.pinA = 34, tube5.pinB = 35, tube5.pinC = 36, tube5.pinD = 37;
+  tube6.pinA = 30, tube6.pinB = 31, tube6.pinC = 32, tube6.pinD = 33;
+
   pinMode(tube1.pinA, OUTPUT);
   pinMode(tube1.pinB, OUTPUT);
   pinMode(tube1.pinC, OUTPUT);
@@ -70,42 +70,54 @@ void setup(){
 
 void loop(){
   /* Running clock logic for each digit/tube */
-  if (tube1.val == 10){
-    tube2.val++;
+  if (tube1.val == 9){
+    tube1.flag = 1;
     tube1.val = 0;
   } else {
     tube1.val++;
   }
-
-  if (tube2.val == 6){
-    tube3.val++;
-    tube2.val = 0;
-  } else {
-    tube2.val++;
+  
+  while (tube1.flag == 1){
+    tube1.flag = 0;
+    if (tube2.val == 5){
+      tube2.flag = 1;
+      tube2.val = 0;
+    } else {
+      tube2.val++;
+    }
   }
 
-  if (tube3.val == 10){
-    tube4.val++;
-    tube3.val = 0;
-  } else {
-    tube3.val++;
+  while (tube2.flag == 1){
+    tube2.flag = 0;
+    if (tube3.val == 9){
+      tube3.flag = 1;
+      tube3.val = 0;
+    } else {
+      tube3.val++;
+    }
   }
 
-  if (tube4.val == 10){
-    tube5.val++;
-    tube4.val = 0;
-  } else {
-    tube4.val++;
+  while (tube3.flag == 1){
+    tube3.flag = 0;
+    if (tube4.val == 5){
+      tube4.flag = 1;
+      tube4.val = 0;
+    } else {
+      tube4.val++;
+    }
   }
 
-  if (tube5.val == 4 && tube6.val == 2){
-    tube5.val = 0;
-    tube6.val = 0;
-  } else if (tube5.val == 10){
-    tube6.val++;
-    tube5.val = 0;
-  } else {
-    tube5.val++;
+  while (tube4.flag == 1){
+    tube4.flag = 0;
+    if (tube5.val == 3 && tube6.val == 2){
+      tube5.val = 0;
+      tube6.val = 0;
+    } else if (tube5.val == 9){
+      tube6.val++;
+      tube5.val = 0;
+    } else {
+      tube5.val++;
+    }
   }
 
   /* Setting pins with the display values */
@@ -119,3 +131,8 @@ void loop(){
   /* Incrementing and repeating every second (more or less) */
   delay(1000);
 }
+
+
+
+
+
