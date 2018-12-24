@@ -11,7 +11,7 @@
  * 
  */
 
-volatile Nixie_t tube1, tube2, tube3, tube4, tube5, tube6;
+volatile TimeDate_t param;
 
 
     

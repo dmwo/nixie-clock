@@ -29,10 +29,12 @@ void setRTCWREN(void){
     __asm__ ("MOV   #0xAA, W3");
     __asm__ ("MOV   W3, [W1]");
     __asm__ ("BSET  RCFGCAL, #13");
+    return;
 }
 
 void clearRTCWREN(void){
     RCFGCALBITS.RTCWREN = 0;
+    return;
 }
 
 /******************************************************************************
@@ -49,6 +51,7 @@ void set_RTCC(TimeDate_t* param){
     RTCVAL = (decimal_to_BCD(param -> min) << 8) + decimal_to_BCD(param -> sec);
     RCFGCALBITS.RTCEN = 1;
     clearRTCWREN();
+    return;
 }
 
 void grab_RTCC(TimeDate_t* param){
@@ -60,6 +63,7 @@ void grab_RTCC(TimeDate_t* param){
     temp = RTCVAL;
     param -> min = BCD_to_decimal(temp >> 8);
     param -> sec = BCD_to_decimal(temp & 0xFF);
+    return;
 }
 
 /******************************************************************************
@@ -67,15 +71,8 @@ void grab_RTCC(TimeDate_t* param){
  ******************************************************************************/
 
 void configure_GPIO(void){
+    AD1PCFGL = 0xFFFF;
     /* Setting all the output pins for the nixie tubes */
-    TRISABITS.TRISA0 = OUTPUT;
-    TRISABITS.TRISA1 = OUTPUT;
-    TRISABITS.TRISA2 = OUTPUT;
-    TRISABITS.TRISA3 = OUTPUT;
-    TRISABITS.TRISA7 = OUTPUT;
-    TRISABITS.TRISA8 = OUTPUT;
-    TRISABITS.TRISA10 = OUTPUT;
-
     TRISBBITS.TRISB0 = OUTPUT;
     TRISBBITS.TRISB1 = OUTPUT;
     TRISBBITS.TRISB2 = OUTPUT;
@@ -95,12 +92,110 @@ void configure_GPIO(void){
     TRISCBITS.TRISC8 = OUTPUT;
     TRISCBITS.TRISC9 = OUTPUT;
 
-    /*  */
-
-    AD1PCFGLBITS.PCFG0
-    TRISBBITS.TRISB0 = 1;   // Set pin to input
+    /* Setting the input pins for the buttons */
+    TRISBBITS.TRISB7 = INPUT;
+    TRISBBITS.TRISB8 = INPUT;
     RPINR0BITS.INT1R = ;    // Select interrupt 1 pin
     RPINR1BITS.INT2R = ;    // Select interrupt 2 pin
+    return;
+}
+
+/******************************************************************************
+ * Writing to Nixie Tubes                                                     *
+ ******************************************************************************/
+
+void nixie_display(TimeDate_t* param){
+    if (param -> mode == TIMEDISPLAY || param -> mode == TIMESELECT){
+        /* Setting hour tens digit */
+        PORTCBITS.RC4 = decimal_to_BCD(param -> hour & 0xF0) & BCD1MASK;
+        PORTCBITS.RC3 = decimal_to_BCD(param -> hour & 0xF0) & BCD0MASK;
+        /* Setting hour ones digit */
+        PORTBBITS.RB4 = decimal_to_BCD(param -> hour & 0x0F) & BCD3MASK;
+        PORTCBITS.RC2 = decimal_to_BCD(param -> hour & 0x0F) & BCD2MASK;
+        PORTCBITS.RC1 = decimal_to_BCD(param -> hour & 0x0F) & BCD1MASK;
+        PORTCBITS.RC0 = decimal_to_BCD(param -> hour & 0x0F) & BCD0MASK;
+        /* Setting minutes tens digit */
+        PORTBBITS.RB3 = decimal_to_BCD(param -> min & 0xF0) & BCD2MASK;
+        PORTBBITS.RB2 = decimal_to_BCD(param -> min & 0xF0) & BCD1MASK;
+        PORTBBITS.RB1 = decimal_to_BCD(param -> min & 0xF0) & BCD0MASK;
+        /* Setting mintues ones digit */
+        PORTBBITS.RB0  = decimal_to_BCD(param -> min & 0x0F) & BCD3MASK;
+        PORTBBITS.RB15 = decimal_to_BCD(param -> min & 0x0F) & BCD2MASK;
+        PORTBBITS.RB14 = decimal_to_BCD(param -> min & 0x0F) & BCD1MASK;
+        PORTBBITS.RB13 = decimal_to_BCD(param -> min & 0x0F) & BCD0MASK;
+        /* Setting seconds tens digit */
+        PORTBBITS.RB12 = 0;
+        PORTBBITS.RB11 = decimal_to_BCD(param -> sec & 0xF0) & BCD2MASK;
+        PORTBBITS.RB10 = decimal_to_BCD(param -> sec & 0xF0) & BCD1MASK;
+        PORTBBITS.RB9  = decimal_to_BCD(param -> sec & 0xF0) & BCD0MASK;
+        /* Setting seconds ones digit */
+        PORTCBITS.RC8 = decimal_to_BCD(param -> sec & 0x0F) & BCD3MASK;
+        PORTCBITS.RC7 = decimal_to_BCD(param -> sec & 0x0F) & BCD2MASK;
+        PORTCBITS.RC6 = decimal_to_BCD(param -> sec & 0x0F) & BCD1MASK;
+        PORTBBITS.RB9 = decimal_to_BCD(param -> sec & 0x0F) & BCD0MASK;
+
+    } else if (param -> mode == DATEDISPLAY || param -> mode == DATESELECT){
+        /* Setting day tens digit */
+        PORTABITS.RA4 = decimal_to_BCD(param -> day & 0xF0) & BCD1MASK;
+        PORTABITS.RA3 = decimal_to_BCD(param -> day & 0xF0) & BCD0MASK;
+        /* Setting day ones digit */
+        PORTBBITS.RB4 = decimal_to_BCD(param -> day & 0x0F) & BCD3MASK;
+        PORTCBITS.RC2 = decimal_to_BCD(param -> day & 0x0F) & BCD2MASK;
+        PORTCBITS.RC1 = decimal_to_BCD(param -> day & 0x0F) & BCD1MASK;
+        PORTCBITS.RC0 = decimal_to_BCD(param -> day & 0x0F) & BCD0MASK;
+        /* Setting month tens digit */
+        PORTBBITS.RB3 = 0;
+        PORTBBITS.RB2 = 0;
+        PORTBBITS.RB1 = decimal_to_BCD(param -> month & 0xF0) & BCD0MASK;
+        /* Setting month ones digit */
+        PORTBBITS.RB0  = decimal_to_BCD(param -> month & 0x0F) & BCD3MASK;
+        PORTBBITS.RB15 = decimal_to_BCD(param -> month & 0x0F) & BCD2MASK;
+        PORTBBITS.RB14 = decimal_to_BCD(param -> month & 0x0F) & BCD1MASK;
+        PORTBBITS.RB13 = decimal_to_BCD(param -> month & 0x0F) & BCD0MASK;
+        /* Setting year tens digit */
+        PORTBBITS.RB12 = decimal_to_BCD(param -> year & 0xF0) & BCD3MASK;
+        PORTBBITS.RB11 = decimal_to_BCD(param -> year & 0xF0) & BCD2MASK;
+        PORTBBITS.RB10 = decimal_to_BCD(param -> year & 0xF0) & BCD1MASK;
+        PORTBBITS.RB9  = decimal_to_BCD(param -> year & 0xF0) & BCD0MASK;
+        /* Setting year ones digit */
+        PORTCBITS.RC8 = decimal_to_BCD(param -> year & 0x0F) & BCD3MASK;
+        PORTCBITS.RC7 = decimal_to_BCD(param -> year & 0x0F) & BCD2MASK;
+        PORTCBITS.RC6 = decimal_to_BCD(param -> year & 0x0F) & BCD1MASK;
+        PORTBBITS.RB9 = decimal_to_BCD(param -> year & 0x0F) & BCD0MASK;
+    } else {
+
+    }
+    return;
+}
+
+/******************************************************************************
+ * External Interrupt Initialisation                                          *
+ ******************************************************************************/
+
+void enable_interrupts(void){
+    /* Sets CPU interrupt priority level to 0 (highest) and enables level 1-7
+     * interrupts */
+    SRBITS.IPL = 0;
+    return;
+}
+
+void disable_interrupts(void){
+    SRBITS.IPL = 7;
+    return;
+}
+
+void init_interrupts(void){
+    INTCON1BITS.NSTDIS = 1; // Disable interrupt nesting
+    IFS0BITS.INT0IF = 0;    // Clear INT0 interrupt flag
+    IFS1BITS.INT1IF = 0;    // Clear INT1 interrupt flag
+    IFS1BITS.INT2IF = 0;    // Clear INT2 interrupt flag
+    INTCON2BITS.INT0EP = 0; // Interrupt INT0 on negative edge
+    INTCON2BITS.INT1EP = 0; // Interrupt INT1 on negative edge
+    INTCON2BITS.INT2EP = 0; // Interrupt INT2 on negative edge
+    IEC0BITS.INT0IE = 1;    // Enable INT0 interrupt
+    IEC1BITS.INT1IE = 1;    // Enable INT1 interrupt
+    IEC1BITS.INT2IE = 1;    // Enable INT2 interrupt
+    return;
 }
 
 /*
@@ -109,11 +204,36 @@ void configure_GPIO(void){
  * mode.
  */
 
-void configure_upbutton_ISR(void){   
-    INTCON1BITS.NSTDIS = 1;     // Disable interrupt nesting
-    IFS1BITS.INT1IF = 0;        // Clear interrupt flag on INT0
-    INTCON2BITS.INT1EP = 1;     // Interrupt on negative edge
-    IEC1BITS.INT1IE = 1;        // Enable interrupts on external interrupt 0
+void __attribute__((__interrupt__, auto_psv )) _ISR _INT2Interrupt (void){
+    IFS1BITS.INT2IF = 0;
+    IEC1BITS.INT2IE = 0;
+
+    if (param.mode == DATESELECT){
+        if (param.date[param.digit] == param.maxdate[param.digit]){
+            param.date[param.digit] = 0;
+        }
+        else{
+            param.date[param.digit] += 1;
+        }
+    }
+    if (param.mode == TIMESELECT){
+        if (param.time[param.digit] == param.maxtime[param.digit]){
+            param.time[param.digit] = 0;
+        }
+        else{
+            param.time[param.digit] += 1;
+        }
+    }
+    if (param.mode == NORMALOP){
+        param.mode = DATESELECT;
+        param.digit = 1;
+    }
+    nixie_display(Nixie_t param);
+}
+
+void __attribute__((__interrupt__, auto_psv )) _ISR _INT1Interrupt (void){
+    IFS1BITS.INT1IF = 0;
+    IEC1BITS.INT1IE = 0;
 }
 
 /*
@@ -121,97 +241,9 @@ void configure_upbutton_ISR(void){
  * button advances to the next digit. Otherwise, it switches between time and
  * date mode.
  */
-
-void configure_modebutton_ISR(void){
-    
-}
-
-/******************************************************************************
- * Reading and Writing to Nixie Tubes                                         *
- ******************************************************************************/
-
-void nixie_display(TimeDate_t* param){
-    if (param -> mode == TIMEDISPLAY || param -> mode == TIMESELECT){
-        
-    } else if (param -> mode == DATEDISPLAY || param -> mode == DATESELECT){
-
-    } else {
-
-    }
-}
-
-/******************************************************************************
- * Setting Clock Boot-up State                                                *
- ******************************************************************************/
-
-/*
- * Initialising the nixie tube clock; setting boot-up date and time display to
- * 00/00/00, 00:00:00, mode to date, and digit to 1 (left-most tube/tens place
- * day).
- */
-
-void initialise_nixie(TimeDate_t* param){
-    /* Setting initial date values in date array */
-    param -> date = {INITDAYTENS,INITDAYONES,INITMONTHTENS,INITMONTHONES,
-                  INITYEARTENS,INITYEARONES};
-    
-    /* Setting initial time values in time array */
-    param -> time = {INITHOURTENS,INITHOURONES,INITMINTENS,INITMINONES,INITSECTENS,
-                  INITSECONES};
-
-    /* Setting max date values */
-    param -> maxdate = {2,9,5,9,5,9};
-    
-    /* Setting max time values */
-    param -> maxtime = {3,9,1,9,9,9};
-    
-    /* Initialising RTCC with time and date values */
-    init_RTC();
-    
-    /* Sending initial values to the nixie tubes */
-    void nixie_time_out(&param);
-    void nixie_date_out(&param);
-}
-
-/******************************************************************************
- * Button Interrupt Handlers                                                  *
- ******************************************************************************/
-
-/*
- * Up button interrupt routine
- */
-
-void interrupt upbutton(void){
-    if (IFS1BITS.INT1IF & ){
-        if (param.mode == DATESELECT){
-            if (param.date[param.digit] == param.maxdate[param.digit]){
-                param.date[param.digit] = 0;
-            }
-            else{
-                param.date[param.digit] += 1;
-            }
-        }
-        if (param.mode == TIMESELECT){
-            if (param.time[param.digit] == param.maxtime[param.digit]){
-                param.time[param.digit] = 0;
-            }
-            else{
-                param.time[param.digit] += 1;
-            }
-        }
-        if (param.mode == NORMALOP){
-            param.mode = DATESELECT;
-            param.digit = 1;
-        }
-        nixie_display(Nixie_t param);
-    }
-}
-
-/*
- * Enter button interrupt routine
- */
-
-void interrupt modebutton(void){
+void __attribute__((__interrupt__, auto_psv )) _ISR _INT0Interrupt (void){
+    IFS0BITS.INT0IF = 0;
+    IEC0BITS.INT0IE = 0;
     if (param.mode == DATESELECT && param.digit == 6){
         param.mode = TIMESELECT;
         param.digit = 1;
@@ -232,15 +264,13 @@ void interrupt modebutton(void){
 }
 
 /******************************************************************************
- * Nixie Tube Digit Display Functions                                         *
+ * Setting Clock Boot-up State                                                *
  ******************************************************************************/
 
-void nixie_display(TimeDate_t param){
-    if (param.mode == NORMALOP){
-        
-    }
-}
-
-
+/*
+ * Initialising the nixie tube clock; setting boot-up date and time display to
+ * 00/00/00, 00:00:00, mode to date, and digit to 1 (left-most tube/tens place
+ * day).
+ */
 
 

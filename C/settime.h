@@ -25,6 +25,10 @@ extern "C" {
  * nixie tube digit, and date/time mode macros                                *
  ******************************************************************************/
 
+#define BCD3MASK		  (0b1000)
+#define BCD2MASK		  (0b0100)
+#define BCD1MASK		  (0b0010)
+#define BCD0MASK		  (0b0001)
 #define OUTPUT            (0)
 #define INPUT             (1)
 #define INITDIGIT         (1)   	 // Sets initial nixie tube digit
