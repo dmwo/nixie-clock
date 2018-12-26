@@ -10,12 +10,26 @@
 *       application.
 *******************************************************************************/
 
+/******************************************************************************
+ * Number Conversion  Functions                                               *
+ ******************************************************************************/
+
 int decimal_to_BCD(int num){
     return (((num / 10) % 10) << 4) + (num % 10);
 }
 
 int decimal_to_BCD(int BCD){
     return (((BCD & 0xF0) >> 4) * 10) + (BCD & 0x0F);
+}
+
+/******************************************************************************
+ * Clock Delay Functions                                                      *
+ ******************************************************************************/
+
+
+
+void __delay_ms(){
+
 }
 
 /******************************************************************************
@@ -241,6 +255,7 @@ void __attribute__((__interrupt__, auto_psv )) _ISR _INT1Interrupt (void){
  * button advances to the next digit. Otherwise, it switches between time and
  * date mode.
  */
+
 void __attribute__((__interrupt__, auto_psv )) _ISR _INT0Interrupt (void){
     IFS0BITS.INT0IF = 0;
     IEC0BITS.INT0IE = 0;
