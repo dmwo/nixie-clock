@@ -25,10 +25,10 @@ extern "C" {
  * nixie tube digit, and date/time mode macros                                *
  ******************************************************************************/
 
-#define BCD3MASK		  (0b1000)
-#define BCD2MASK		  (0b0100)
-#define BCD1MASK		  (0b0010)
-#define BCD0MASK		  (0b0001)
+#define BCDMASKD		  (0b1000)
+#define BCDMASKC		  (0b0100)
+#define BCDMASKB		  (0b0010)
+#define BCDMASKA		  (0b0001)
 #define OUTPUT            (0)
 #define INPUT             (1)
 #define INITDIGIT         (1)   	 // Sets initial nixie tube digit
@@ -36,6 +36,9 @@ extern "C" {
 #define TIMEDISPLAY		  (2)  		 // Sets clock to time display mode
 #define DATESELECT        (1)   	 // Sets clock to date mode
 #define TIMESELECT        (0)   	 // Sets clock to time mode
+#define HRDAY             (2)
+#define MINMON            (1)
+#define SECYR             (0)
 	
 /*****************************************************************************
  * Creating Date and Time Structures                                         *
@@ -44,7 +47,8 @@ extern "C" {
 typedef struct{
 	volatile int year = 0, month = 0, day = 0;
 	volatile int hour = 0, min = 0, sec = 0;
-	volatile int mode;
+	volatile int mode = TIMESELECT;
+	volatile int digit = HRDAY;
 } TimeDate_t;
 
 /*****************************************************************************
