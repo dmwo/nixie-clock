@@ -50,6 +50,15 @@ void write_i2c(uint8_t data){
     wait_i2c();
 }
 
+uint8_t read_i2c(){
+    uint8_t buf;
+    RCEN = 1;
+    wait_i2c();
+    buf = SSPBUF;
+    wait_i2c();
+    ACKDT = 
+}
+
 void set_rtcc(void){
     /* Writing seconds data to RTCC */
     start_i2c();
@@ -102,6 +111,106 @@ void set_rtcc(void){
 }
 
 void read_rtcc(void){
-    uint8_t buf;
-    
+    uint8_t data;
+
+    /* 
+     * Reading seconds data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCSEC.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCSEC struct */
+    RTCSEC.st = data & 0b10000000;
+    RTCSEC.tens = data & 0b01110000;
+    RTCSEC.ones = data & 0b00001111;
+
+    /* 
+     * Reading minutes data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCMIN.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCMIN struct */
+    RTCMIN.tens = data & 0b01110000;
+    RTCMIN.ones = data & 0b00001111;
+
+    /* 
+     * Reading hours data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCHOUR.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCHOUR struct */
+    RTCHOUR.format = data & 0b01000000;
+    RTCHOUR.tens = data & 0b00110000;
+    RTCHOUR.ones = data & 0b00001111;
+
+    /* 
+     * Reading weekday data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCWKDAY.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCWKDAY struct */
+    RTCWKDAY.format = data & 0b00100000;
+    RTCWKDAY.ones = data & 0b00000111;
+
+    /* 
+     * Reading date data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCDATE.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCDATE struct */
+    RTCDATE.tens = data & 0b00110000;
+    RTCDATE.ones = data & 0b00001111;
+
+    /* 
+     * Reading month data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCMTH.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCMTH struct */
+    RTCMTH.format = data & 0b00100000;
+    RTCMTH.tens = data & 0b00010000;
+    RTCMTH.ones = data & 0b00001111;
+
+    /* 
+     * Reading year data from RTCC
+     */
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCYEAR.ADDR);
+    restart_i2c();
+    write_i2c(CTL_IN_R);
+    data = read_i2c();
+    stop_i2c();
+    /* Storing information in RTCYEAR struct */
+    RTCYEAR.tens = data & 0b11110000;
+    RTCYEAR.ones = data & 0b00001111;
 }
