@@ -16,6 +16,8 @@ extern "C" {
 #define _XTAL_FREQ (16000000)
 #define CTL_IN_R   (0b11011111)
 #define CTL_IN_W   (0b11011110)
+#define INPUT      (1)
+#define OUTPUT     (0)
 
 /* RTCC timekeeping registers */
 // Register: RTCSEC

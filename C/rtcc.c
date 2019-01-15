@@ -1,4 +1,4 @@
-#include <rtcc.h>
+#include "rtcc.h"
 
 /*******************************************************************************
 * File: rtcc.c
@@ -124,7 +124,7 @@ void read_rtcc(void){
     data = read_i2c();
     stop_i2c();
     /* Storing information in RTCSEC struct */
-    RTCSEC.st = data & 0b10000000;
+    RTCSEC.st   = data & 0b10000000;
     RTCSEC.tens = data & 0b01110000;
     RTCSEC.ones = data & 0b00001111;
 
@@ -154,8 +154,8 @@ void read_rtcc(void){
     stop_i2c();
     /* Storing information in RTCHOUR struct */
     RTCHOUR.format = data & 0b01000000;
-    RTCHOUR.tens = data & 0b00110000;
-    RTCHOUR.ones = data & 0b00001111;
+    RTCHOUR.tens   = data & 0b00110000;
+    RTCHOUR.ones   = data & 0b00001111;
 
     /* 
      * Reading weekday data from RTCC
@@ -169,7 +169,7 @@ void read_rtcc(void){
     stop_i2c();
     /* Storing information in RTCWKDAY struct */
     RTCWKDAY.format = data & 0b00100000;
-    RTCWKDAY.ones = data & 0b00000111;
+    RTCWKDAY.ones   = data & 0b00000111;
 
     /* 
      * Reading date data from RTCC
@@ -197,8 +197,8 @@ void read_rtcc(void){
     stop_i2c();
     /* Storing information in RTCMTH struct */
     RTCMTH.format = data & 0b00100000;
-    RTCMTH.tens = data & 0b00010000;
-    RTCMTH.ones = data & 0b00001111;
+    RTCMTH.tens   = data & 0b00010000;
+    RTCMTH.ones   = data & 0b00001111;
 
     /* 
      * Reading year data from RTCC
