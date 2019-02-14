@@ -22,21 +22,21 @@ extern "C" {
 /* RTCC timekeeping registers */
 // Register: RTCSEC
 typedef struct {
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
-    unsigned int st;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
+    uint8_t st;
     uint8_t ADDR = 0x00;
 } RTCSEC_t;
 extern volatile RTCSEC_t RTCSEC;
 
 // Register: RTCMIN
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
     uint8_t ADDR = 0x01;
 };
 } RTCMIN_t;
@@ -44,51 +44,51 @@ extern volatile RTCMIN_t RTCMIN;
 
 // Register: RTCHOUR
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
-    unsigned int format;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
+    uint8_t format;
     uint8_t ADDR = 0x02;
 } RTCHOUR_t;
 extern volatile RTCHOUR_t RTCHOUR;
 
 // Register: RTCWKDAY
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int ones_shift;
-    unsigned int oscrun;
+    uint8_t ones_BCD;
+    uint8_t ones_shift;
+    uint8_t oscrun;
     uint8_t ADDR = 0x03;
 } RTCWKDAY_t;
 extern volatile RTCWKDAY_t RTCWKDAY;
 
 // Register: RTCDATE
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
     uint8_t ADDRESS = 0x04;
 } RTCDATE_t;
 extern volatile RTCDATE_t RTCDATE;
 
 // Register: RTCMTH
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
-    unsigned int leapyear;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
+    uint8_t leapyear;
     uint8_t ADDR = 0x05;
 } RTCMTH_t;
 extern volatile RTCMTH_t RTCMTH;
 
 // Register: RTCYEAR
 typedef struct{
-    unsigned int ones_BCD;
-    unsigned int tens_BCD;
-    unsigned int ones_shift;
-    unsigned int tens_shift;
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ones_shift;
+    uint8_t tens_shift;
     uint8_t ADDR = 0x06;
 } RTCDATE_t;
 extern volatile RTCDATE_t RTCDATE;

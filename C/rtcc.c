@@ -60,6 +60,7 @@ uint8_t read_i2c(){
 }
 
 void shift_BCD(void){
+    #ifndef COMMENT
     RTCSEC.ones_shift[0] = RTCSEC.ones_BCD[2]; RTCSEC.ones_shift[1] = RTCSEC.ones_BCD[1];
     RTCSEC.ones_shift[2] = RTCSEC.ones_BCD[3]; RTCSEC.ones_shift[3] = RTCSEC.ones_BCD[0];
     RTCSEC.tens_shift[0] = RTCSEC.tens_BCD[2]; RTCSEC.tens_shift[1] = RTCSEC.tens_BCD[1];
@@ -92,9 +93,11 @@ void shift_BCD(void){
     RTCYEAR.ones_shift[2] = RTCYEAR.ones_BCD[3]; RTCYEAR.ones_shift[3] = RTCYEAR.ones_BCD[0];
     RTCYEAR.tens_shift[0] = RTCYEAR.tens_BCD[2]; RTCYEAR.tens_shift[1] = RTCYEAR.tens_BCD[1];
     RTCYEAR.tens_shift[2] = RTCYEAR.tens_BCD[3]; RTCYEAR.tens_shift[3] = RTCYEAR.tens_BCD[0];
+    #endif
 }
 
 void set_rtcc(void){
+    #ifndef COMMENT
     /* Writing seconds data to RTCC */
     start_i2c();
     write_i2c(CTL_IN_W);
@@ -143,6 +146,18 @@ void set_rtcc(void){
     write_i2c(RTCYEAR.ADDR);
     write_i2c(RTCYEAR.tens_BCD << 4 | RTCYEAR.ones_BCD);
     stop_i2c();
+    #endif
+
+    start_i2c();
+    write_i2c(CTL_IN_W);
+    write_i2c(RTCSEC.ADDR);
+    write_i2c(RTCSEC.tens_BCD << 4 | RTCSEC.ones_BCD);
+    write_i2c(RTCMIN.tens_BCD << 4 | RTCMIN.ones_BCD);
+    write_i2c((RTCHOUR.format << 2 | RTCHOUR.tens_BCD) << 4 | RTCHOUR.ones_BCD);
+    write_i2c(RTCWKDAY.oscrun << 5 | RTCWKDAY.ones_BCD);
+    write_i2c(RTCDATE.tens_BCD << 4 | RTCDATE.ones_BCD);
+    write_i2c((RTCMTH.leapyear << 1 | RTCMTH.tens_BCD) << 4 | RTCMTH.ones_BCD);
+    write_i2c(RTCYEAR.tens_BCD << 4 | RTCYEAR.ones_BCD);
 }
 
 void read_rtcc(void){
