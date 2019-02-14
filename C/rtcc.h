@@ -19,6 +19,12 @@ extern "C" {
 #define INPUT      (1)
 #define OUTPUT     (0)
 
+typedef struct {
+    uint8_t ones_BCD;
+    uint8_t tens_BCD;
+    uint8_t ADDR;
+} RTCC_t;
+
 /* RTCC timekeeping registers */
 // Register: RTCSEC
 typedef struct {

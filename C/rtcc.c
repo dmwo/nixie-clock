@@ -59,8 +59,8 @@ uint8_t read_i2c(){
     ACKDT = 
 }
 
+#ifndef COMMENT
 void shift_BCD(void){
-    #ifndef COMMENT
     RTCSEC.ones_shift[0] = RTCSEC.ones_BCD[2]; RTCSEC.ones_shift[1] = RTCSEC.ones_BCD[1];
     RTCSEC.ones_shift[2] = RTCSEC.ones_BCD[3]; RTCSEC.ones_shift[3] = RTCSEC.ones_BCD[0];
     RTCSEC.tens_shift[0] = RTCSEC.tens_BCD[2]; RTCSEC.tens_shift[1] = RTCSEC.tens_BCD[1];
@@ -93,7 +93,15 @@ void shift_BCD(void){
     RTCYEAR.ones_shift[2] = RTCYEAR.ones_BCD[3]; RTCYEAR.ones_shift[3] = RTCYEAR.ones_BCD[0];
     RTCYEAR.tens_shift[0] = RTCYEAR.tens_BCD[2]; RTCYEAR.tens_shift[1] = RTCYEAR.tens_BCD[1];
     RTCYEAR.tens_shift[2] = RTCYEAR.tens_BCD[3]; RTCYEAR.tens_shift[3] = RTCYEAR.tens_BCD[0];
-    #endif
+}
+#endif
+
+uint8_t shift_BCD(RTCC_t* ptr){
+    uint8_t shift_data;
+
+    shift_data = ptr ->
+
+    return shift_data;
 }
 
 void set_rtcc(void){
