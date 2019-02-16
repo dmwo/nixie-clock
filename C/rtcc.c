@@ -1,14 +1,38 @@
 #include "rtcc.h"
 
-/*******************************************************************************
-* File: rtcc.c
-* Author: Dylan Oh
-* Date Created: 28 Dec 2018
-* Desc: Contains functions that communicate with the MCP7940M real time clock
-        and calendar using I2C.
-*******************************************************************************/
+/******************************************************************************
+ * filename: rtcc.c                                                           *
+ *                                                                            *
+ * purpose: Contains functions that communicate with the MCP7940M real time   *
+ *          clock and calendar using I2C.                                     *
+ *                                                                            *
+ * date created: 28 Dec 2018                                                  *
+ *                                                                            *
+ * author: Dylan Oh                                                           *
+ *****************************************************************************/
 
-void init_i2c(int baud){
+/******************************************************************************
+ * FUNCTION DEFINITIONS                                                       *
+ *****************************************************************************/
+
+/*
+ * function name: init_i2c
+ *
+ * description: Initialises the I2C by:
+ *              - setting the SCL and SDA ports in peripheral pin select
+ *              - enabling MSSP1
+ *              - setting I2C mode to master
+ *              - setting the baud rate
+ *
+ * arguments:
+ * argument     type        description
+ * --------     ----        -----------
+ * baud         uint8_t     desired baud rate of the I2C
+ * 
+ * returns: none
+ */
+
+void init_i2c(uint8_t baud){
     TRISBbits.TRISB5 = INPUT; // Set pin B5 as SCL input
     TRISBbits.TRISB7 = INPUT; // Set pin B7 as SDA input
     SSP2CON1bits.SSPEN = 1;   // Enable master synchronous serial port
@@ -18,14 +42,37 @@ void init_i2c(int baud){
     SSPSTAT = 0;
 }
 
-void wait_i2c(void){
-    /* 
-     * While R_nW is high (data is being transmitted over the I2C bus) OR
-     * ACKSTAT is high (either NACK or no ACK), do nothing.
-     */
+/*****************************************************************************/
 
+/*
+ * function name: wait_i2c
+ *
+ * description: Waits for an ACK from a slave device by polling if data is
+ *              being transmitted over the I2C bus or if there is either a
+ *              NACK or no ACK
+ *
+ * arguments: none
+ *
+ * returns: none
+ */
+
+void wait_i2c(void){
     while(SSP2STAT.R_nW || SSP2CON2bits.ACKSTAT);
 }
+
+/*****************************************************************************/
+
+/*
+ * function name: start_i2c
+ *
+ * description: Sends a start condition to the I2C. The start enable bit is
+ *              automatically cleared by the PIC16F18445, so when that bit is
+ *              deasserted, the start condition is successful
+ *
+ * arguments: none
+ *
+ * returns: none
+ */
 
 void start_i2c(void){
     SSP2CON2bits.SEN = 1;     // Send start condition
@@ -33,11 +80,37 @@ void start_i2c(void){
     wait_i2c();
 }
 
+/*****************************************************************************/
+
+/*
+ * function name: restart_i2c
+ *
+ * description: Sends a repeated start condition to the I2C. Works in the same
+ *              way as start_i2c
+ *
+ * arguments: none
+ *
+ * returns: none
+ */
+
 void restart_i2c(void){
     SSP2CON2bits.RSEN = 1;    // Send repeated start condition
     while(SSP2CON2bits.RSEN); // Wait for successful restart
     wait_i2c();
 }
+
+/*****************************************************************************/
+
+/*
+ * function name: stop_i2c
+ *
+ * description: Sends a stop condition to the I2C. Works in the same way as
+ *              start_i2c
+ *
+ * arguments: none
+ *
+ * returns: none
+ */
 
 void stop_i2c(void){
     SSP2CON2bits.PEN = 1;     // Send stop condition
@@ -45,12 +118,42 @@ void stop_i2c(void){
     wait_i2c();
 }
 
+/*****************************************************************************/
+
+/*
+ * function name: write_i2c
+ *
+ * description: Writes a byte of data to the I2C TX buffer and waits for an
+ *              ACK from the slave before returning
+ *
+ * arguments:
+ * argument     type        description
+ * --------     ----        -----------
+ * data         uint8_t     data to be sent by the master
+ * 
+ * returns: none
+ */
+
 void write_i2c(uint8_t data){
     SSP2BUF = data;
     wait_i2c();
 }
 
-uint8_t read_i2c(){
+/*****************************************************************************/
+
+/*
+ * function name: read_i2c
+ *
+ * description: Reads a byte of data from the I2C RX buffer. Sends a read
+ *              enable bit and waiting for the RX buffer to fill with a valid
+ *              byte of data
+ *
+ * arguments: none
+ *
+ * returns: uint8_t data sent by the slave
+ */
+
+uint8_t read_i2c(void){
     uint8_t buf;
     RCEN = 1;
     wait_i2c();
@@ -59,216 +162,85 @@ uint8_t read_i2c(){
     ACKDT = 
 }
 
-#ifndef COMMENT
-void shift_BCD(void){
-    RTCSEC.ones_shift[0] = RTCSEC.ones_BCD[2]; RTCSEC.ones_shift[1] = RTCSEC.ones_BCD[1];
-    RTCSEC.ones_shift[2] = RTCSEC.ones_BCD[3]; RTCSEC.ones_shift[3] = RTCSEC.ones_BCD[0];
-    RTCSEC.tens_shift[0] = RTCSEC.tens_BCD[2]; RTCSEC.tens_shift[1] = RTCSEC.tens_BCD[1];
-    RTCSEC.tens_shift[2] = RTCSEC.tens_BCD[3]; RTCSEC.tens_shift[3] = RTCSEC.tens_BCD[0];
+/*****************************************************************************/
 
-    RTCMIN.ones_shift[0] = RTCMIN.ones_BCD[2]; RTCMIN.ones_shift[1] = RTCMIN.ones_BCD[1];
-    RTCMIN.ones_shift[2] = RTCMIN.ones_BCD[3]; RTCMIN.ones_shift[3] = RTCMIN.ones_BCD[0];
-    RTCMIN.tens_shift[0] = RTCMIN.tens_BCD[2]; RTCMIN.tens_shift[1] = RTCMIN.tens_BCD[1];
-    RTCMIN.tens_shift[2] = RTCMIN.tens_BCD[3]; RTCMIN.tens_shift[3] = RTCMIN.tens_BCD[0];
-
-    RTCHOUR.ones_shift[0] = RTCHOUR.ones_BCD[2]; RTCHOUR.ones_shift[1] = RTCHOUR.ones_BCD[1];
-    RTCHOUR.ones_shift[2] = RTCHOUR.ones_BCD[3]; RTCHOUR.ones_shift[3] = RTCHOUR.ones_BCD[0];
-    RTCHOUR.tens_shift[0] = RTCHOUR.tens_BCD[2]; RTCHOUR.tens_shift[1] = RTCHOUR.tens_BCD[1];
-    RTCHOUR.tens_shift[2] = RTCHOUR.tens_BCD[3]; RTCHOUR.tens_shift[3] = RTCHOUR.tens_BCD[0];
-
-    RTCWKDAY.ones_shift[0] = RTCWKDAY.ones_BCD[2]; RTCWKDAY.ones_shift[1] = RTCWKDAY.ones_BCD[1];
-    RTCWKDAY.ones_shift[2] = RTCWKDAY.ones_BCD[3]; RTCWKDAY.ones_shift[3] = RTCWKDAY.ones_BCD[0];
-
-    RTCDATE.ones_shift[0] = RTCDATE.ones_BCD[2]; RTCDATE.ones_shift[1] = RTCDATE.ones_BCD[1];
-    RTCDATE.ones_shift[2] = RTCDATE.ones_BCD[3]; RTCDATE.ones_shift[3] = RTCDATE.ones_BCD[0];
-    RTCDATE.tens_shift[0] = RTCDATE.tens_BCD[2]; RTCDATE.tens_shift[1] = RTCDATE.tens_BCD[1];
-    RTCDATE.tens_shift[2] = RTCDATE.tens_BCD[3]; RTCDATE.tens_shift[3] = RTCDATE.tens_BCD[0];
-
-    RTCMTH.ones_shift[0] = RTCMTH.ones_BCD[2]; RTCMTH.ones_shift[1] = RTCMTH.ones_BCD[1];
-    RTCMTH.ones_shift[2] = RTCMTH.ones_BCD[3]; RTCMTH.ones_shift[3] = RTCMTH.ones_BCD[0];
-    RTCMTH.tens_shift[0] = RTCMTH.tens_BCD[2]; RTCMTH.tens_shift[1] = RTCMTH.tens_BCD[1];
-    RTCMTH.tens_shift[2] = RTCMTH.tens_BCD[3]; RTCMTH.tens_shift[3] = RTCMTH.tens_BCD[0];
-
-    RTCYEAR.ones_shift[0] = RTCYEAR.ones_BCD[2]; RTCYEAR.ones_shift[1] = RTCYEAR.ones_BCD[1];
-    RTCYEAR.ones_shift[2] = RTCYEAR.ones_BCD[3]; RTCYEAR.ones_shift[3] = RTCYEAR.ones_BCD[0];
-    RTCYEAR.tens_shift[0] = RTCYEAR.tens_BCD[2]; RTCYEAR.tens_shift[1] = RTCYEAR.tens_BCD[1];
-    RTCYEAR.tens_shift[2] = RTCYEAR.tens_BCD[3]; RTCYEAR.tens_shift[3] = RTCYEAR.tens_BCD[0];
-}
-#endif
-
-uint8_t shift_BCD(RTCC_t* ptr){
-    uint8_t shift_data;
-
-    shift_data = ptr ->
-
-    return shift_data;
-}
+/*
+ * function name: set_rtcc
+ *
+ * description: Sets the time on the RTC when the clock is first initialised.
+ *              Writes to the RTC automatically advance the register being
+ *              written to, so each element of the clock and calendar is sent
+ *              consecutively
+ *
+ * arguments: none
+ *
+ * returns: none
+ */
 
 void set_rtcc(void){
-    #ifndef COMMENT
-    /* Writing seconds data to RTCC */
     start_i2c();
     write_i2c(CTL_IN_W);
-    write_i2c(RTCSEC.ADDR);
-    write_i2c(RTCSEC.tens_BCD << 4 | RTCSEC.ones_BCD);
+    write_i2c(SEC_ADDR);
+    write_i2c(secRTC.tens_BCD << 4 | secRTC.ones_BCD);
+    write_i2c(minRTC.tens_BCD << 4 | minRTC.ones_BCD);
+    write_i2c((hourRTC.format << 2 | hourRTC.tens_BCD) << 4 | hourRTC.ones_BCD);
+    write_i2c(wkdayRTC.oscrun << 5 | wkdayRTC.ones_BCD);
+    write_i2c(dateRTC.tens_BCD << 4 | dateRTC.ones_BCD);
+    write_i2c((monthRTC.leapyear << 1 | monthRTC.tens_BCD) << 4 | monthRTC.ones_BCD);
+    write_i2c(yearRTC.tens_BCD << 4 | yearRTC.ones_BCD);
     stop_i2c();
-
-    /* Writing minutes data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCMIN.ADDR);
-    write_i2c(RTCMIN.tens_BCD << 4 | RTCMIN.ones_BCD);
-    stop_i2c();
-
-    /* Writing hours data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCHOUR.ADDR);
-    write_i2c((RTCHOUR.format << 2 | RTCHOUR.tens_BCD) << 4 | RTCHOUR.ones_BCD);
-    stop_i2c();
-
-    /* Writing weekday data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCWKDAY.ADDR);
-    write_i2c(RTCWKDAY.oscrun << 5 | RTCWKDAY.ones_BCD);
-    stop_i2c();
-
-    /* Writing date data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCDATE.ADDR);
-    write_i2c(RTCDATE.tens_BCD << 4 | RTCDATE.ones_BCD);
-    stop_i2c();
-
-    /* Writing month data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCMTH.ADDR);
-    write_i2c((RTCMTH.leapyear << 1 | RTCMTH.tens_BCD) << 4 | RTCMTH.ones_BCD);
-    stop_i2c();
-
-    /* Writing month data to RTCC */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCYEAR.ADDR);
-    write_i2c(RTCYEAR.tens_BCD << 4 | RTCYEAR.ones_BCD);
-    stop_i2c();
-    #endif
-
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCSEC.ADDR);
-    write_i2c(RTCSEC.tens_BCD << 4 | RTCSEC.ones_BCD);
-    write_i2c(RTCMIN.tens_BCD << 4 | RTCMIN.ones_BCD);
-    write_i2c((RTCHOUR.format << 2 | RTCHOUR.tens_BCD) << 4 | RTCHOUR.ones_BCD);
-    write_i2c(RTCWKDAY.oscrun << 5 | RTCWKDAY.ones_BCD);
-    write_i2c(RTCDATE.tens_BCD << 4 | RTCDATE.ones_BCD);
-    write_i2c((RTCMTH.leapyear << 1 | RTCMTH.tens_BCD) << 4 | RTCMTH.ones_BCD);
-    write_i2c(RTCYEAR.tens_BCD << 4 | RTCYEAR.ones_BCD);
 }
+
+/*****************************************************************************/
+
+/*
+ * function name: read_rtcc
+ *
+ * description: 
+ *
+ * arguments:
+ *
+ * returns:
+ */
 
 void read_rtcc(void){
     uint8_t data;
 
-    /* 
-     * Reading seconds data from RTCC
-     */
+    /* Reading seconds data from RTCC */
     start_i2c();
     write_i2c(CTL_IN_W);
     write_i2c(RTCSEC.ADDR);
     restart_i2c();
     write_i2c(CTL_IN_R);
-    data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCSEC struct */
-    RTCSEC.st       = (data & 0b10000000) >> 7;
-    RTCSEC.tens_BCD = (data & 0b01110000) >> 4;
-    RTCSEC.ones_BCD = data & 0b00001111;
 
-    /* 
-     * Reading minutes data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCMIN.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCMIN struct */
-    RTCMIN.tens_BCD = (data & 0b01110000) >> 4;
-    RTCMIN.ones_BCD = data & 0b00001111;
+    secRTC.st       = (data & 0b10000000) >> 7;
+    secRTC.tens_BCD = (data & 0b01110000) >> 4;
+    secRTC.ones_BCD = data & 0b00001111;
 
-    /* 
-     * Reading hours data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCHOUR.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCHOUR struct */
-    RTCHOUR.format   = (data & 0b01000000) >> 6;
-    RTCHOUR.tens_BCD = (data & 0b00110000) >> 4;
-    RTCHOUR.ones_BCD = data & 0b00001111;
+    minRTC.tens_BCD = (data & 0b01110000) >> 4;
+    minRTC.ones_BCD = data & 0b00001111;
 
-    /* 
-     * Reading weekday data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCWKDAY.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCWKDAY struct */
-    RTCWKDAY.format   = (data & 0b00100000) >> 5;
-    RTCWKDAY.ones_BCD = data & 0b00000111;
+    hourRTC.format   = (data & 0b01000000) >> 6;
+    hourRTC.tens_BCD = (data & 0b00110000) >> 4;
+    hourRTC.ones_BCD = data & 0b00001111;
 
-    /* 
-     * Reading date data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCDATE.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCDATE struct */
-    RTCDATE.tens_BCD = (data & 0b00110000) >> 4;
-    RTCDATE.ones_BCD = data & 0b00001111;
+    wkdayRTC.format   = (data & 0b00100000) >> 5;
+    wkdayRTC.ones_BCD = data & 0b00000111;
 
-    /* 
-     * Reading month data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCMTH.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCMTH struct */
-    RTCMTH.format   = (data & 0b00100000) >> 5;
-    RTCMTH.tens_BCD = (data & 0b00010000) >> 4;
-    RTCMTH.ones_BCD = data & 0b00001111;
+    dateRTC.tens_BCD = (data & 0b00110000) >> 4;
+    dateRTC.ones_BCD = data & 0b00001111;
 
-    /* 
-     * Reading year data from RTCC
-     */
-    start_i2c();
-    write_i2c(CTL_IN_W);
-    write_i2c(RTCYEAR.ADDR);
-    restart_i2c();
-    write_i2c(CTL_IN_R);
     data = read_i2c();
-    stop_i2c();
-    /* Storing information in RTCYEAR struct */
-    RTCYEAR.tens_BCD = (data & 0b11110000) >> 4;
-    RTCYEAR.ones_BCD = data & 0b00001111;
+    monthRTC.format   = (data & 0b00100000) >> 5;
+    monthRTC.tens_BCD = (data & 0b00010000) >> 4;
+    monthRTC.ones_BCD = data & 0b00001111;
+
+    data = read_i2c();
+    yearRTC.tens_BCD = (data & 0b11110000) >> 4;
+    yearRTC.ones_BCD = data & 0b00001111;
 }

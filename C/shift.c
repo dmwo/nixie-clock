@@ -31,12 +31,12 @@ void write_spi(uint8_t data){
 
 void write_shift(int mode){
     if (mode == TIME){
-        write_spi(RTCSEC.tens_shift >> 4 | RTCSEC.ones_shift);
-        write_spi(RTCMIN.tens_shift >> 4 | RTCMIN.ones_shift);
-        write_spi(RTCHOUR.tens_shift >> 4 | RTCHOUR.ones_shift);
+        write_spi(secRTC.tens_shift >> 4 | secRTC.ones_shift);
+        write_spi(minRTC.tens_shift >> 4 | minRTC.ones_shift);
+        write_spi(hourRTC.tens_shift >> 4 | hourRTC.ones_shift);
     } else if (mode == DATE){
-        write_spi(RTCYEAR.tens_shift >> 4 | RTCYEAR.ones_shift);
-        write_spi(RTCMON.tens_shift >> 4 | RTCMON.ones_shift);
-        write_spi(RTCDATE.tens_shift >> 4 | RTCDATE.ones_shift);
+        write_spi(yearRTC.tens_shift >> 4 | yearRTC.ones_shift);
+        write_spi(monthRTC.tens_shift >> 4 | monthRTC.ones_shift);
+        write_spi(dateRTC.tens_shift >> 4 | dateRTC.ones_shift);
     }
 }

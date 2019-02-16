@@ -3,6 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/******************************************************************************
+ * filename: rtcc.h                                                           *
+ *                                                                            *
+ * purpose: Contains function declarations and macros used in rtcc.c          *
+ *                                                                            *
+ * date created: 28 Dec 2018                                                  *
+ *                                                                            *
+ * authors: Dylan Oh                                                          *
+ *****************************************************************************/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -13,93 +23,32 @@ extern "C" {
 #ifndef RTCC_H
 #define	RTCC_H
 
+/******************************************************************************
+ * MACRO DEFINITIONS                                                          *
+ *****************************************************************************/
 #define _XTAL_FREQ (16000000)
 #define CTL_IN_R   (0b11011111)
 #define CTL_IN_W   (0b11011110)
 #define INPUT      (1)
 #define OUTPUT     (0)
+#define SEC_ADDR   (0x00)
 
 typedef struct {
     uint8_t ones_BCD;
     uint8_t tens_BCD;
-    uint8_t ADDR;
 } RTCC_t;
 
-/* RTCC timekeeping registers */
-// Register: RTCSEC
-typedef struct {
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t st;
-    uint8_t ADDR = 0x00;
-} RTCSEC_t;
-extern volatile RTCSEC_t RTCSEC;
+extern volatile RTCC_t secRTC;
+extern volatile RTCC_t minRTC;
+extern volatile RTCC_t hourRTC;
+extern volatile RTCC_t wkdayRTC;
+extern volatile RTCC_t dateRTC;
+extern volatile RTCC_t monthRTC;
+extern volatile RTCC_t yearRTC;
 
-// Register: RTCMIN
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t ADDR = 0x01;
-};
-} RTCMIN_t;
-extern volatile RTCMIN_t RTCMIN;
-
-// Register: RTCHOUR
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t format;
-    uint8_t ADDR = 0x02;
-} RTCHOUR_t;
-extern volatile RTCHOUR_t RTCHOUR;
-
-// Register: RTCWKDAY
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t ones_shift;
-    uint8_t oscrun;
-    uint8_t ADDR = 0x03;
-} RTCWKDAY_t;
-extern volatile RTCWKDAY_t RTCWKDAY;
-
-// Register: RTCDATE
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t ADDRESS = 0x04;
-} RTCDATE_t;
-extern volatile RTCDATE_t RTCDATE;
-
-// Register: RTCMTH
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t leapyear;
-    uint8_t ADDR = 0x05;
-} RTCMTH_t;
-extern volatile RTCMTH_t RTCMTH;
-
-// Register: RTCYEAR
-typedef struct{
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
-    uint8_t ones_shift;
-    uint8_t tens_shift;
-    uint8_t ADDR = 0x06;
-} RTCDATE_t;
-extern volatile RTCDATE_t RTCDATE;
-
-/* Function Declarations */
+/******************************************************************************
+ * FUNCTION DECLARATIONS                                                      *
+ *****************************************************************************/
 void init_i2c(int baud);
 void wait_i2c(void);
 void start_i2c(void);
