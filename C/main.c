@@ -5,17 +5,18 @@
  * Created on 23 December 2017, 16:07
  */
 
-#include "settime.h"
+#include "nixie.h"
+#include "rtcc.h"
+#include "shift.h"
 
 /*
  * 
  */
 
-volatile TimeDate_t param;
+init_GPIO();
+init_spi();
+init_i2c();
 
-
-    
 int main(int argc, char** argv) {
     return (EXIT_SUCCESS);
 }
-

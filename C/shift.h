@@ -3,6 +3,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/******************************************************************************
+ * filename: rtcc.h                                                           *
+ *                                                                            *
+ * purpose: Contains function declarations and macros used in rtcc.c          *
+ *                                                                            *
+ * date created: 28 Dec 2018                                                  *
+ *                                                                            *
+ * authors: Dylan Oh                                                          *
+ *****************************************************************************/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

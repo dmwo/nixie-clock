@@ -167,10 +167,10 @@ uint8_t read_i2c(void){
 /*
  * function name: set_rtcc
  *
- * description: Sets the time on the RTC when the clock is first initialised.
- *              Writes to the RTC automatically advance the register being
+ * description: Sets the time on the RTCC when the clock is first initialised.
+ *              Writes to the RTCC automatically advance the register being
  *              written to, so each element of the clock and calendar is sent
- *              consecutively
+ *              consecutively.
  *
  * arguments: none
  *
@@ -183,10 +183,10 @@ void set_rtcc(void){
     write_i2c(SEC_ADDR);
     write_i2c(secRTC.tens_BCD << 4 | secRTC.ones_BCD);
     write_i2c(minRTC.tens_BCD << 4 | minRTC.ones_BCD);
-    write_i2c((hourRTC.format << 2 | hourRTC.tens_BCD) << 4 | hourRTC.ones_BCD);
-    write_i2c(wkdayRTC.oscrun << 5 | wkdayRTC.ones_BCD);
+    write_i2c((hourRTC.extra << 2 | hourRTC.tens_BCD) << 4 | hourRTC.ones_BCD);
+    write_i2c(wkdayRTC.extra << 5 | wkdayRTC.ones_BCD);
     write_i2c(dateRTC.tens_BCD << 4 | dateRTC.ones_BCD);
-    write_i2c((monthRTC.leapyear << 1 | monthRTC.tens_BCD) << 4 | monthRTC.ones_BCD);
+    write_i2c((monthRTC.extra << 1 | monthRTC.tens_BCD) << 4 | monthRTC.ones_BCD);
     write_i2c(yearRTC.tens_BCD << 4 | yearRTC.ones_BCD);
     stop_i2c();
 }
@@ -196,7 +196,10 @@ void set_rtcc(void){
 /*
  * function name: read_rtcc
  *
- * description: 
+ * description: Reads values of the RTCC when called and stores them in their
+ *              respective registers. Like as in writing, the addresses of the
+ *              registers are automatically advanced to allow for consecutive
+ *              reads.
  *
  * arguments:
  *
@@ -214,33 +217,33 @@ void read_rtcc(void){
     write_i2c(CTL_IN_R);
 
     data = read_i2c();
-    secRTC.st       = (data & 0b10000000) >> 7;
-    secRTC.tens_BCD = (data & 0b01110000) >> 4;
-    secRTC.ones_BCD = data & 0b00001111;
+    secRTC.extra      = (data & 0b10000000) >> 7;
+    secRTC.tens_BCD   = (data & 0b01110000) >> 4;
+    secRTC.ones_BCD   =  data & 0b00001111;
 
     data = read_i2c();
-    minRTC.tens_BCD = (data & 0b01110000) >> 4;
-    minRTC.ones_BCD = data & 0b00001111;
+    minRTC.tens_BCD   = (data & 0b01110000) >> 4;
+    minRTC.ones_BCD   =  data & 0b00001111;
 
     data = read_i2c();
-    hourRTC.format   = (data & 0b01000000) >> 6;
-    hourRTC.tens_BCD = (data & 0b00110000) >> 4;
-    hourRTC.ones_BCD = data & 0b00001111;
+    hourRTC.extra     = (data & 0b01000000) >> 6;
+    hourRTC.tens_BCD  = (data & 0b00110000) >> 4;
+    hourRTC.ones_BCD  =  data & 0b00001111;
 
     data = read_i2c();
-    wkdayRTC.format   = (data & 0b00100000) >> 5;
-    wkdayRTC.ones_BCD = data & 0b00000111;
+    wkdayRTC.extra    = (data & 0b00100000) >> 5;
+    wkdayRTC.ones_BCD =  data & 0b00000111;
 
     data = read_i2c();
-    dateRTC.tens_BCD = (data & 0b00110000) >> 4;
-    dateRTC.ones_BCD = data & 0b00001111;
+    dateRTC.tens_BCD  = (data & 0b00110000) >> 4;
+    dateRTC.ones_BCD  =  data & 0b00001111;
 
     data = read_i2c();
-    monthRTC.format   = (data & 0b00100000) >> 5;
+    monthRTC.extra    = (data & 0b00100000) >> 5;
     monthRTC.tens_BCD = (data & 0b00010000) >> 4;
-    monthRTC.ones_BCD = data & 0b00001111;
+    monthRTC.ones_BCD =  data & 0b00001111;
 
     data = read_i2c();
-    yearRTC.tens_BCD = (data & 0b11110000) >> 4;
-    yearRTC.ones_BCD = data & 0b00001111;
+    yearRTC.tens_BCD  = (data & 0b11110000) >> 4;
+    yearRTC.ones_BCD  =  data & 0b00001111;
 }

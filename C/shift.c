@@ -29,14 +29,20 @@ void write_spi(uint8_t data){
     temp = SSP1BUF;
 }
 
-void write_shift(int mode){
+// fix in eagle: pin A => QA and QE
+//               pin B => QB and QF
+//               pin C => QC and QG
+//               pin D => QD and QH
+// QABCD correspond to higher place
+// QEFGH correspond to lower place
+void write_shift(uint8_t mode){
     if (mode == TIME){
-        write_spi(secRTC.tens_shift >> 4 | secRTC.ones_shift);
-        write_spi(minRTC.tens_shift >> 4 | minRTC.ones_shift);
-        write_spi(hourRTC.tens_shift >> 4 | hourRTC.ones_shift);
+        write_spi(secRTC.ones_BCD  << 4 | secRTC.tens_BCD);
+        write_spi(minRTC.ones_BCD  << 4 | minRTC.tens_BCD);
+        write_spi(hourRTC.ones_BCD << 4 | hourRTC.tens_BCD);
     } else if (mode == DATE){
-        write_spi(yearRTC.tens_shift >> 4 | yearRTC.ones_shift);
-        write_spi(monthRTC.tens_shift >> 4 | monthRTC.ones_shift);
-        write_spi(dateRTC.tens_shift >> 4 | dateRTC.ones_shift);
+        write_spi(yearRTC.ones_BCD  << 4 | yearRTC.tens_BCD);
+        write_spi(monthRTC.ones_BCD << 4 | monthRTC.tens_BCD);
+        write_spi(dateRTC.ones_BCD  << 4 | dateRTC.tens_BCD);
     }
 }

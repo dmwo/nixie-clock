@@ -4,7 +4,7 @@
  * Configuring Ports and Peripherals                                          *
  ******************************************************************************/
 
-void configure_GPIO(void){
+void init_GPIO(void){
     AD1PCFGL = 0xFFFF;
     /* Setting all the output pins for the transistor switches */
     TRISABITS.TRISA0 = OUTPUT; // Minute / month switch
@@ -20,7 +20,6 @@ void configure_GPIO(void){
     TRISCBITS.TRISC7 = INPUT;  // Up button
     RPINR0BITS.INT1R = 8;     // Map interrupt 1 to RP8
     RPINR1BITS.INT2R = 6;     // Map interrupt 2 to RP6
-    return;
 }
 
 /******************************************************************************
@@ -31,16 +30,36 @@ void enable_interrupts(void){
     /* Sets CPU interrupt priority level to 0 (highest) and enables level 1-7
      * interrupts */
     SRBITS.IPL = 0;
-    return;
 }
 
 void disable_interrupts(void){
     SRBITS.IPL = 7;
-    return;
 }
 
 void init_interrupts(void){
     INTCON1BITS.NSTDIS = 1; // Disable interrupt nesting
+
+    /* Clearing flags for IOC interrups */
+    IOCBFbits.IOCBF7 = 0;
+    IOCCFbits.IOCCF3 = 0;
+    IOCCFbits.IOCCF4 = 0;
+    IOCCFbits.IOCCF6 = 0;
+    IOCCFbits.IOCCF7 = 0;
+
+    /* Setting negative edge detection bits */
+    IOCBNbits.IOCBN7 = 1;
+    IOCCNbits.IOCCN3 = 0;
+    IOCCNbits.IOCCN4 = 0;
+    IOCCNbits.IOCCN6 = 0;
+    IOCCNbits.IOCCN7 = 0;
+
+    /* Setting positive edge detection bits */
+    IOCBPbits.IOCBP7 = 1;
+    IOCCPbits.IOCCP3 = 1;
+    IOCCPbits.IOCCP4 = 1;
+    IOCCPbits.IOCCP6 = 1;
+    IOCCPbits.IOCCP7 = 1;
+
     IFS0BITS.INT0IF = 0;    // Clear INT0 interrupt flag
     IFS1BITS.INT1IF = 0;    // Clear INT1 interrupt flag
     IFS1BITS.INT2IF = 0;    // Clear INT2 interrupt flag
@@ -50,7 +69,7 @@ void init_interrupts(void){
     IEC0BITS.INT0IE = 1;    // Enable INT0 interrupt
     IEC1BITS.INT1IE = 1;    // Enable INT1 interrupt
     IEC1BITS.INT2IE = 1;    // Enable INT2 interrupt
-    return;
+    PIE0bits.IOCIE = 1;
 }
 
 /*
@@ -114,29 +133,105 @@ void __attribute__((__interrupt__, auto_psv )) _ISR _INT1Interrupt (void){
 }
 
 /*
- * Configuring mode/enter button; while the clock is in setup mode, pushing this 
- * button advances to the next digit. Otherwise, it switches between time and
- * date mode.
+ * Mode Button Interrupt Service Routine
  */
 
-void __attribute__((__interrupt__, auto_psv )) _ISR _INT0Interrupt (void){
-    IFS0BITS.INT0IF = 0;
-    IEC0BITS.INT0IE = 0;
+void IOCBF7_ISR(void) {
+    // IFS0BITS.INT0IF = 0;
+    // IEC0BITS.INT0IE = 0;
     if (param.mode == DATESELECT && param.digit == 6){
         param.mode = TIMESELECT;
         param.digit = 1;
-    }
-    else if (param.mode == DATESELECT && param.digit != 6){
+    } else if (param.mode == DATESELECT && param.digit != 6){
         param.digit += 1;
-    }
-    else if (param.mode == TIMESELECT && param.digit == 6){
+    } else if (param.mode == TIMESELECT && param.digit == 6){
         param.mode = NORMALOP;
         param.digit = 1;
-    }
-    else if (param.mode == TIMESELECT && param.digit != 6){
+    } else if (param.mode == TIMESELECT && param.digit != 6){
         param.digit += 1;
-    }
-    else{
+    } else {
         
+    }
+
+    IOCBFbits.IOCBF7 = 0;
+}
+
+/*
+ * Down Button Interrupt Service Routine
+ */
+
+void IOCCF3_ISR(void) {
+
+    // Add custom IOCCF3 code
+
+    IOCCFbits.IOCCF3 = 0;
+}
+
+/*
+ * Up Button Interrupt Service Routine
+*/
+void IOCCF4_ISR(void) {
+
+    // Add custom IOCCF4 code
+
+    IOCCFbits.IOCCF4 = 0;
+}
+
+/*
+ * Left Button Interrupt Service Routine
+ */
+void IOCCF6_ISR(void) {
+
+    if (param.digit == 1){
+        param.digit == 6;
+    } else {
+        param.digit--;
+    }
+
+    IOCCFbits.IOCCF6 = 0;
+}
+
+/*
+ * Right Button Interrupt Service Routine
+ */
+void IOCCF7_ISR(void) {
+
+    if (param.digit == 6){
+        param.digit = 1;
+    } else {
+        param.digit++;
+    }
+
+    IOCCFbits.IOCCF7 = 0;
+}
+
+void __interrupt() INTERRUPT_InterruptManager (void){
+    // interrupt handler
+    if (PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1){
+        if (IOCBFbits.IOCBF7 == 1){
+            IOCBF7_ISR();  
+        }
+        if (IOCCFbits.IOCCF3 == 1){
+            IOCCF3_ISR();  
+        }
+        if (IOCCFbits.IOCCF4 == 1){
+            IOCCF4_ISR();  
+        }
+        if (IOCCFbits.IOCCF6 == 1){
+            IOCCF6_ISR();  
+        }
+        if (IOCCFbits.IOCCF7 == 1){
+            IOCCF7_ISR();  
+        }
+    } else if (INTCONbits.PEIE == 1){
+        if (PIE3bits.BCL2IE == 1 && PIR3bits.BCL2IF == 1){
+            I2C2_BusCollisionISR();
+        } else if (PIE3bits.SSP2IE == 1 && PIR3bits.SSP2IF == 1){
+            I2C2_ISR();
+        } else {
+            //Unhandled Interrupt
+        }
+    } else {
+        //Unhandled Interrupt
     }
 }

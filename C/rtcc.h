@@ -33,9 +33,27 @@ extern "C" {
 #define OUTPUT     (0)
 #define SEC_ADDR   (0x00)
 
+/* 
+ * RTCC_t is a struct that contains information for each element of the RTCC.
+ * Each 8-bit register stores the ones place of the element as a BCD value in
+ * the lower halfword and the tens place of the element in the higher halfword
+ *
+ * In some RTCC registers, an extra bit is included that is not related to the
+ * general functioning of the register but still has important information. The
+ * extra element of the struct accounts for these bits, which are:
+ * 
+ * name     desc                          bit   register
+ * ----     ----                          ---   --------
+ * ST       starts oscillator             7     RTCSEC
+ * 12/~24   specifies time format         6     RTCHOUR
+ * OSCRUN   defines oscillator status     5     RTCWKDAY
+ * LPYR     determines if leap year       5     RTCMTH
+ */
+
 typedef struct {
     uint8_t ones_BCD;
     uint8_t tens_BCD;
+    uint8_t extra;
 } RTCC_t;
 
 extern volatile RTCC_t secRTC;
