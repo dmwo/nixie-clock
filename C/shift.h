@@ -13,15 +13,8 @@
  * authors: Dylan Oh                                                          *
  *****************************************************************************/
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-#ifdef	__cplusplus
-}
-#endif
-
-#ifndef SHIFT_H
-#define	SHIFT_H
+static const __flash uint8_t lookup[10] = 
+{0, 2, 1, 3, 8, 10, 9, 11, 4, 6};
 
 /* Function Declarations */
 void init_spi(void);

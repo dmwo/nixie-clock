@@ -51,8 +51,8 @@ extern "C" {
  */
 
 typedef struct {
-    uint8_t ones_BCD;
-    uint8_t tens_BCD;
+    uint8_t ones;
+    uint8_t tens;
     uint8_t extra;
 } RTCC_t;
 

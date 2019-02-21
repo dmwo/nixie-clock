@@ -181,13 +181,13 @@ void set_rtcc(void){
     start_i2c();
     write_i2c(CTL_IN_W);
     write_i2c(SEC_ADDR);
-    write_i2c(secRTC.tens_BCD << 4 | secRTC.ones_BCD);
-    write_i2c(minRTC.tens_BCD << 4 | minRTC.ones_BCD);
-    write_i2c((hourRTC.extra << 2 | hourRTC.tens_BCD) << 4 | hourRTC.ones_BCD);
-    write_i2c(wkdayRTC.extra << 5 | wkdayRTC.ones_BCD);
-    write_i2c(dateRTC.tens_BCD << 4 | dateRTC.ones_BCD);
-    write_i2c((monthRTC.extra << 1 | monthRTC.tens_BCD) << 4 | monthRTC.ones_BCD);
-    write_i2c(yearRTC.tens_BCD << 4 | yearRTC.ones_BCD);
+    write_i2c(secRTC.tens << 4 | secRTC.ones);
+    write_i2c(minRTC.tens << 4 | minRTC.ones);
+    write_i2c((hourRTC.extra << 2 | hourRTC.tens) << 4 | hourRTC.ones);
+    write_i2c(wkdayRTC.extra << 5 | wkdayRTC.ones);
+    write_i2c(dateRTC.tens << 4 | dateRTC.ones);
+    write_i2c((monthRTC.extra << 1 | monthRTC.tens) << 4 | monthRTC.ones);
+    write_i2c(yearRTC.tens << 4 | yearRTC.ones);
     stop_i2c();
 }
 
@@ -217,33 +217,33 @@ void read_rtcc(void){
     write_i2c(CTL_IN_R);
 
     data = read_i2c();
-    secRTC.extra      = (data & 0b10000000) >> 7;
-    secRTC.tens_BCD   = (data & 0b01110000) >> 4;
-    secRTC.ones_BCD   =  data & 0b00001111;
+    secRTC.extra   = (data & 0b10000000) >> 7;
+    secRTC.tens    = (data & 0b01110000) >> 4;
+    secRTC.ones    =  data & 0b00001111;
 
     data = read_i2c();
-    minRTC.tens_BCD   = (data & 0b01110000) >> 4;
-    minRTC.ones_BCD   =  data & 0b00001111;
+    minRTC.tens    = (data & 0b01110000) >> 4;
+    minRTC.ones    =  data & 0b00001111;
 
     data = read_i2c();
-    hourRTC.extra     = (data & 0b01000000) >> 6;
-    hourRTC.tens_BCD  = (data & 0b00110000) >> 4;
-    hourRTC.ones_BCD  =  data & 0b00001111;
+    hourRTC.extra  = (data & 0b01000000) >> 6;
+    hourRTC.tens   = (data & 0b00110000) >> 4;
+    hourRTC.ones   =  data & 0b00001111;
 
     data = read_i2c();
-    wkdayRTC.extra    = (data & 0b00100000) >> 5;
-    wkdayRTC.ones_BCD =  data & 0b00000111;
+    wkdayRTC.extra = (data & 0b00100000) >> 5;
+    wkdayRTC.ones  =  data & 0b00000111;
 
     data = read_i2c();
-    dateRTC.tens_BCD  = (data & 0b00110000) >> 4;
-    dateRTC.ones_BCD  =  data & 0b00001111;
+    dateRTC.tens   = (data & 0b00110000) >> 4;
+    dateRTC.ones   =  data & 0b00001111;
 
     data = read_i2c();
-    monthRTC.extra    = (data & 0b00100000) >> 5;
-    monthRTC.tens_BCD = (data & 0b00010000) >> 4;
-    monthRTC.ones_BCD =  data & 0b00001111;
+    monthRTC.extra = (data & 0b00100000) >> 5;
+    monthRTC.tens  = (data & 0b00010000) >> 4;
+    monthRTC.ones  =  data & 0b00001111;
 
     data = read_i2c();
-    yearRTC.tens_BCD  = (data & 0b11110000) >> 4;
-    yearRTC.ones_BCD  =  data & 0b00001111;
+    yearRTC.tens   = (data & 0b11110000) >> 4;
+    yearRTC.ones   =  data & 0b00001111;
 }
