@@ -1,38 +1,39 @@
 #include <xc.h>
 #include "shift.h"
 
-/*******************************************************************************
-* File: shift.c
-* Author: Dylan Oh
-* Date Created: 28 Dec 2018
-* Desc: Contains functions that communicate with the SN74HC595N shift registers
-        using SPI.
-*******************************************************************************/
-
-void init_spi(void){
-    TRISBbits.TRISB6 = OUTPUT; // Set pin B6 as SCK input
-    TRISAbits.TRISA2 = OUTPUT; // Set pin A2 as SDO input
-    SSP2CON1bits.SSPEN = 1;    // Enable master synchronous serial port
-    SSP2CON1bits.SSPM = 0;     // Set SPI master mode
-    SSP2CON2 = 0;              // Reset SPI
-    SSP2STAT = 0;    
+/******************************************************************************
+ * filename: shift.c                                                          *
+ *                                                                            *
+ * purpose: Contains functions used for operating the three SN74HC595N shift  *
+ *          registers used to encode and set the K155ID1 nixie tube drivers   *
+ *          with BCD values using SPI.                                        *
+ *                                                                            *
+ * date created: 28 Dec 2018                                                  *
+ *                                                                            *
+ * author: Dylan Oh                                                           *
+ *****************************************************************************/
+ 
+void SPI2_Init(void){
+    MSSP2_SPI_Enable();  // Enable master synchronous serial port 2
+    SPI2_Master_Mode();  // Set MSSP2 as SPI master mode
+    SPI2_Clear_Status(); // Clear all SPI statuses
 }
 
-void write_spi(uint8_t data){
-    SPI_Write_Clear();  // Clear write collision flag to allow writing
-    SSP2BUF = data;     // Write data to SPI buffer
-    SPI_Wait_Buffer();  // Wait for buffer to empty
-    data = SSP2BUF;     // Read garbage data from slave to clear buffer
+void SPI2_Write(uint8_t data){
+    SPI2_Write_Clear();  // Clear write collision flag to allow writing
+    SSP2BUF = data;      // Write data to SPI buffer
+    SPI2_Wait_Buffer();  // Wait for buffer to fill with receive data
+    data = SSP2BUF;      // Read garbage data from slave to clear buffer
 }
 
-void write_shift(){
+void SPI2_Write_Shift(void){
     if (param.mode == TIME || param.mode == TIMESELECT){
-        write_spi(lookup_ones[secRTC.ones]  << 4 | lookup_tens[secRTC.tens)];
-        write_spi(lookup_ones[minRTC.ones]  << 4 | lookup_tens[minRTC.tens)];
-        write_spi(lookup_ones[hourRTC.ones] << 4 | lookup_tens[hourRTC.tens)];
+        SPI2_Write(lookup_ones[secRTC.ones]   << 4 | lookup_tens[secRTC.tens)];
+        SPI2_Write(lookup_ones[minRTC.ones]   << 4 | lookup_tens[minRTC.tens)];
+        SPI2_Write(lookup_ones[hourRTC.ones]  << 4 | lookup_tens[hourRTC.tens)];
     } else if (param.mode == DATE || param.mode == DATESELECT){
-        write_spi(lookup_ones[yearRTC.ones]  << 4 | lookup_tens[yearRTC.tens)];
-        write_spi(lookup_ones[monthRTC.ones] << 4 | lookup_tens[monthRTC.tens)];
-        write_spi(lookup_ones[dateRTC.ones]  << 4 | lookup_tens[dateRTC.tens)];
+        SPI2_Write(lookup_ones[yearRTC.ones]  << 4 | lookup_tens[yearRTC.tens)];
+        SPI2_Write(lookup_ones[monthRTC.ones] << 4 | lookup_tens[monthRTC.tens)];
+        SPI2_Write(lookup_ones[dateRTC.ones]  << 4 | lookup_tens[dateRTC.tens)];
     }
 }

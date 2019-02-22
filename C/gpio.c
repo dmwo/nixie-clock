@@ -6,18 +6,33 @@
 
 void init_GPIO(void){
     AD1PCFGL = 0xFFFF;
+
+    /* Setting SPI pins */
+    
+    TRISBbits.TRISB5 = OUTPUT; // Set pin B5 as SDO2 input
+    RB5PPS = SDO2;
+
+    TRISBbits.TRISB4    = OUTPUT; // Set pin B4 as SDI2 input
+    SSP2DATPPSbits.PIN  = SDI2_PIN;
+    SSP2DATPPSbits.PORT = SDI2_PORT;
+
+    TRISBbits.TRISB6    = OUTPUT; // Set pin B6 as SCK2 input
+    SSP2CLKPPSbits.PIN  = SCK2_PIN;
+    SSP2CLKPPSbits.PORT = SCK2_PORT;
+    RB6PPS = SCK2;
+
     /* Setting all the output pins for the transistor switches */
     TRISABITS.TRISA0 = OUTPUT; // Minute / month switch
     TRISABITS.TRISA1 = OUTPUT; // Second / year switch
     TRISCBITS.TRISC0 = OUTPUT; // Hour / day switch
     TRISCBITS.TRISC1 = OUTPUT; // High voltage switch
 
-    /* Setting the input pins for the buttons */
-    UP_BUTTON_PIN    = INPUT; // Up button
-    DOWN_BUTTON_PIN  = INPUT; // Down button
-    LEFT_BUTTON_PIN  = INPUT; // Left button
-    RIGHT_BUTTON_PIN = INPUT; // Right button
-    MODE_BUTTON_PIN  = INPUT; // Mode button
+    /* Setting the IO direction for the buttons */
+    UP_BUTTON    = INPUT; // Up button
+    DOWN_BUTTON  = INPUT; // Down button
+    LEFT_BUTTON  = INPUT; // Left button
+    RIGHT_BUTTON = INPUT; // Right button
+    MODE_BUTTON  = INPUT; // Mode button
 }
 
 /******************************************************************************
