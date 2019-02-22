@@ -13,13 +13,11 @@ void init_GPIO(void){
     TRISCBITS.TRISC1 = OUTPUT; // High voltage switch
 
     /* Setting the input pins for the buttons */
-    TRISCBITS.TRISC3 = INPUT;  // Left button
-    TRISCBITS.TRISC4 = INPUT;  // Right button
-    TRISCBITS.TRISC5 = INPUT;  // Mode button
-    TRISCBITS.TRISC6 = INPUT;  // Down button
-    TRISCBITS.TRISC7 = INPUT;  // Up button
-    RPINR0BITS.INT1R = 8;     // Map interrupt 1 to RP8
-    RPINR1BITS.INT2R = 6;     // Map interrupt 2 to RP6
+    UP_BUTTON_PIN    = INPUT; // Up button
+    DOWN_BUTTON_PIN  = INPUT; // Down button
+    LEFT_BUTTON_PIN  = INPUT; // Left button
+    RIGHT_BUTTON_PIN = INPUT; // Right button
+    MODE_BUTTON_PIN  = INPUT; // Mode button
 }
 
 /******************************************************************************
@@ -40,35 +38,26 @@ void init_interrupts(void){
     INTCON1BITS.NSTDIS = 1; // Disable interrupt nesting
 
     /* Clearing flags for IOC interrups */
-    MODE_Button_Clear();
-    DOWN_Button_Clear();
     UP_Button_Clear();
+    DOWN_Button_Clear();
     LEFT_Button_Clear();
     RIGHT_Button_Clear();
+    MODE_Button_Clear();
 
     /* Setting negative edge detection bits */
-    MODE_BUTTON_NEGEDGE  = true;
-    DOWN_BUTTON_NEGEDGE  = true;
     UP_BUTTON_NEGEDGE    = true;
+    DOWN_BUTTON_NEGEDGE  = true;
     LEFT_BUTTON_NEGEDGE  = true;
     RIGHT_BUTTON_NEGEDGE = true;
+    MODE_BUTTON_NEGEDGE  = true;
 
     /* Setting positive edge detection bits */
-    MODE_BUTTON_POSEDGE  = false;
-    DOWN_BUTTON_POSEDGE  = false;
     UP_BUTTON_POSEDGE    = false;
+    DOWN_BUTTON_POSEDGE  = false;
     LEFT_BUTTON_POSEDGE  = false;
     RIGHT_BUTTON_POSEDGE = false;
+    MODE_BUTTON_POSEDGE  = false;
 
-    IFS0BITS.INT0IF = 0;    // Clear INT0 interrupt flag
-    IFS1BITS.INT1IF = 0;    // Clear INT1 interrupt flag
-    IFS1BITS.INT2IF = 0;    // Clear INT2 interrupt flag
-    INTCON2BITS.INT0EP = 0; // Interrupt INT0 on negative edge
-    INTCON2BITS.INT1EP = 0; // Interrupt INT1 on negative edge
-    INTCON2BITS.INT2EP = 0; // Interrupt INT2 on negative edge
-    IEC0BITS.INT0IE = 1;    // Enable INT0 interrupt
-    IEC1BITS.INT1IE = 1;    // Enable INT1 interrupt
-    IEC1BITS.INT2IE = 1;    // Enable INT2 interrupt
     PIE0bits.IOCIE = 1;
 }
 
@@ -146,12 +135,11 @@ void right_button_ISR(void) {
 }
 
 void interrupt Interrupt_Handler(void){
-    // interrupt handler
     if (PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1){
-        if (IOCBFbits.IOCBF7 == 1) { mode_button_ISR(); }
-        if (IOCCFbits.IOCCF3 == 1) { down_button_ISR(); }
-        if (IOCCFbits.IOCCF4 == 1) { up_button_ISR(); }
-        if (IOCCFbits.IOCCF6 == 1) { left_button_ISR(); }
-        if (IOCCFbits.IOCCF7 == 1) { right_button_ISR(); }
-    } else {}
+        if (IOCBFbits.IOCBF7 == 1) mode_button_ISR();
+        if (IOCCFbits.IOCCF3 == 1) down_button_ISR();
+        if (IOCCFbits.IOCCF4 == 1) up_button_ISR();
+        if (IOCCFbits.IOCCF6 == 1) left_button_ISR();
+        if (IOCCFbits.IOCCF7 == 1) right_button_ISR();
+    }
 }
