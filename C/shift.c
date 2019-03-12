@@ -14,19 +14,23 @@
  *****************************************************************************/
  
 void SPI2_Init(void){
-    MSSP2_SPI_Enable();  // Enable master synchronous serial port 2
-    SPI2_Master_Mode();  // Set MSSP2 as SPI master mode
-    SPI2_Clear_Status(); // Clear all SPI statuses
+    MSSP2_SPI_Enable();        // Enable master synchronous serial port 2
+    SPI2_Master_Mode();        // Set MSSP2 as SPI master mode
+    SPI2_Clear_Status();       // Clear all SPI statuses
 }
 
 void SPI2_Write(uint8_t data){
-    SPI2_Write_Clear();  // Clear write collision flag to allow writing
-    SSP2BUF = data;      // Write data to SPI buffer
-    SPI2_Wait_Buffer();  // Wait for buffer to fill with receive data
-    data = SSP2BUF;      // Read garbage data from slave to clear buffer
+    SPI2_Write_Clear();        // Clear write collision flag to allow writing
+    SSP2BUF = data;            // Write data to SPI buffer
+    SPI2_Wait_Buffer();        // Wait for buffer to fill with receive data
+    data = SSP2BUF;            // Read garbage data from slave to clear buffer
 }
 
-void SPI2_Write_Shift(void){
+void SPI2_Wait_Buffer(void){
+    while(!SPI_Status_Buffer); // Wait for the buffer to empty (write complete)
+}
+
+void SN74HC595_Write(void){
     if (param.mode == TIME || param.mode == TIMESELECT){
         SPI2_Write(lookup_ones[secRTC.ones]   << 4 | lookup_tens[secRTC.tens)];
         SPI2_Write(lookup_ones[minRTC.ones]   << 4 | lookup_tens[minRTC.tens)];

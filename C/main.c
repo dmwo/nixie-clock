@@ -13,10 +13,9 @@
  * 
  */
 
-init_GPIO();
-init_spi();
-init_i2c();
-
-int main(int argc, char** argv) {
-    return (EXIT_SUCCESS);
+void main(void) {
+    /* Enabling peripherals */
+    GPIO_Init();
+    SPI2_Init();
+    // I2C1_Init();
 }

@@ -4,7 +4,7 @@
  * Configuring Ports and Peripherals                                          *
  ******************************************************************************/
 
-void init_GPIO(void){
+void GPIO_Init(void){
     AD1PCFGL = 0xFFFF;
 
     /* Setting SPI pins */
@@ -39,17 +39,7 @@ void init_GPIO(void){
  * External Interrupt Initialisation                                          *
  ******************************************************************************/
 
-void enable_interrupts(void){
-    /* Sets CPU interrupt priority level to 0 (highest) and enables level 1-7
-     * interrupts */
-    SRBITS.IPL = 0;
-}
-
-void disable_interrupts(void){
-    SRBITS.IPL = 7;
-}
-
-void init_interrupts(void){
+void Interrupt_Init(void){
     INTCON1BITS.NSTDIS = 1; // Disable interrupt nesting
 
     /* Clearing flags for IOC interrups */
@@ -96,7 +86,7 @@ void mode_button_ISR(void) {
         param.mode = TIME;
     }
 
-    write_shift();
+    SN74HC595_Write();
     MODE_Button_Clear();
 }
 

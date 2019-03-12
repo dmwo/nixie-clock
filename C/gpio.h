@@ -23,6 +23,8 @@
 #define RIGHT_BUTTON          TRISCBITS.TRISC7
 #define MODE_BUTTON           TRISBBITS.TRISB7
 
+#define Interrupt_Enable()   (SRBITS.IPL = 0)
+#define Interrupt_Disable()  (SRBITS.IPL = 7)
 #define UP_Button_Clear()    (IOCCFbits.IOCCF4 = 0)
 #define DOWN_Button_Clear()  (IOCCFbits.IOCCF3 = 0)
 #define LEFT_Button_Clear()  (IOCCFbits.IOCCF6 = 0)
@@ -42,3 +44,5 @@
 #define LEFT_BUTTON_POSEDGE   IOCCPbits.IOCCP6
 #define RIGHT_BUTTON_POSEDGE  IOCCPbits.IOCCP7
 #define MODE_BUTTON_POSEDGE   IOCBPbits.IOCBP7
+
+void GPIO_Init(void);

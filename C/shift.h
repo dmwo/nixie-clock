@@ -29,11 +29,12 @@ static const __flash uint8_t lookup_ones[10] =
 static const __flash uint8_t lookup_tens[10] =
 {0, 2, 8, 10, 1, 3, 9, 11, 4, 6};
 
+#define SPI_Status_Buffer   (SSP2STATbits.BF)
+
 // SPI operation aliases
 #define MSSP2_SPI_Enable()  (SSP2CON1bits.SSPEN = 1)
 #define SPI2_Master_Mode()  (SSP2CON1bits.SSPM = 0)
 #define SPI2_Clear_Status() (SSP2STAT = 0)
-#define SPI2_Wait_Buffer()  (while(!SSP2STATbits.BF))
 #define SPI2_Write_Clear()  (SSP2CON1bits.WCOL = 0)
 
 /******************************************************************************
@@ -126,4 +127,33 @@ void SPI2_Write(uint8_t data);
     </code>
  */
 
-void SPI2_Write_Shift(void);
+void SPI2_Wait_Buffer(void);
+
+/*****************************************************************************/
+
+/*
+  @Summary
+
+
+  @Description
+
+
+  @Preconditions
+
+
+  @Param
+
+
+  @Returns
+
+
+  @Comment
+
+
+  @Example
+    <code>
+
+    </code>
+ */
+
+void SN74HC595_Write(void);
