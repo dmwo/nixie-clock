@@ -31,11 +31,11 @@ void SPI2_Wait_Buffer(void){
 }
 
 void SN74HC595_Write(void){
-    if (param.mode == TIME || param.mode == TIMESELECT){
+    if (mode == TIME || mode == TIMESEL){
         SPI2_Write(lookup_ones[secRTC.ones]   << 4 | lookup_tens[secRTC.tens)];
         SPI2_Write(lookup_ones[minRTC.ones]   << 4 | lookup_tens[minRTC.tens)];
         SPI2_Write(lookup_ones[hourRTC.ones]  << 4 | lookup_tens[hourRTC.tens)];
-    } else if (param.mode == DATE || param.mode == DATESELECT){
+    } else if (mode == DATE || mode == DATESEL){
         SPI2_Write(lookup_ones[yearRTC.ones]  << 4 | lookup_tens[yearRTC.tens)];
         SPI2_Write(lookup_ones[monthRTC.ones] << 4 | lookup_tens[monthRTC.tens)];
         SPI2_Write(lookup_ones[dateRTC.ones]  << 4 | lookup_tens[dateRTC.tens)];

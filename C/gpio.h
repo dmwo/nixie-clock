@@ -51,7 +51,17 @@
 #define Right_Int_Clear()       (IOCCFbits.IOCCF7 = 0)
 #define Mode_Int_Clear()        (IOCBFbits.IOCBF7 = 0)
 
-extern volatile mode = DATESEL;
-extern volatile digit = 1;
+typedef struct {
+    uint8_t mode = DATESEL;
+    uint8_t digit = 0;
+    uint8_t num1 = 0;
+    uint8_t num2 = 0;
+    uint8_t num3 = 0;
+} Param_t;
+
+extern volatile Param_t init;
+extern volatile uint8_t mode = DATESEL;
+extern volatile uint8_t digit = 0;
+extern volatile char num[3] = 0;
 
 void GPIO_Init(void);

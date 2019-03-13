@@ -68,8 +68,9 @@ void Interrupt_Init(void){
 }
 
 void down_button_ISR(void) {
-
-    // Add custom IOCCF3 code
+    if (num[digit] == 0){
+        if mode
+    } else num[digit]++;
 
     SN74HC595_Write();
     Down_Int_Clear();
@@ -86,10 +87,8 @@ void up_button_ISR(void) {
 }
 
 void left_button_ISR(void) {
-    if (param.digit == 1){
-        param.digit == 3;
-    } else {
-        param.digit--;
+    if (param.digit == 0) param.digit == 2;
+    else param.digit--;
     }
 
     SN74HC595_Write();
@@ -99,8 +98,8 @@ void left_button_ISR(void) {
 
 void right_button_ISR(void) {
 
-    if (param.digit == 3){
-        param.digit = 1;
+    if (param.digit == 2){
+        param.digit = 0;
     } else {
         param.digit++;
     }
@@ -114,7 +113,7 @@ void mode_button_ISR(void) {
     if (mode == DATESEL){
         /* Switch to time set mode after setting date */
         mode = TIMESEL;
-        digit = 1;
+        digit = 0;
     } else if (mode == TIMESEL){
         /* Switch to time display mode after setting time */
         mode = TIME;
