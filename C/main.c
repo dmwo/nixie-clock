@@ -17,5 +17,13 @@ void main(void) {
     /* Enabling peripherals */
     GPIO_Init();
     SPI2_Init();
+    Interrupt_Init();
     // I2C1_Init();
+
+    Global_Int_Enable();
+    Peripheral_Int_Enable();
+
+    while (1){
+        
+    }
 }

@@ -40,14 +40,14 @@ void GPIO_Init(void){
  ******************************************************************************/
 
 void Interrupt_Init(void){
-    INTCON1BITS.NSTDIS = 1; // Disable interrupt nesting
+    Nested_Int_Disable(); // Disable interrupt nesting
 
     /* Clearing flags for IOC interrups */
-    UP_Button_Clear();
-    DOWN_Button_Clear();
-    LEFT_Button_Clear();
-    RIGHT_Button_Clear();
-    MODE_Button_Clear();
+    Up_Int_Clear();
+    Down_Int_Clear();
+    Left_Int_Clear();
+    Right_Int_Clear();
+    Mode_Int_Clear();
 
     /* Setting negative edge detection bits */
     UP_BUTTON_NEGEDGE    = true;
@@ -63,83 +63,82 @@ void Interrupt_Init(void){
     RIGHT_BUTTON_POSEDGE = false;
     MODE_BUTTON_POSEDGE  = false;
 
-    PIE0bits.IOCIE = 1;
+    IOC_Int_Enable();
+    Timer_Int_Enable();
 }
-
-/*
- * Mode Button Interrupt Service Routine
- */
-
-void mode_button_ISR(void) {
-    if (param.mode == DATESELECT){
-        param.mode = TIMESELECT;
-        param.digit = 1;
-    } else if (param.mode == TIMESELECT){
-        param.mode = TIME;
-    } else if {param.mode == TIME){
-        MODE_BUTTON_POSEDGE = true;
-        MODE_BUTTON_NEGEDGE = false;
-        param.mode = DATE;
-    } else {
-        MODE_BUTTON_POSEDGE = false;
-        MODE_BUTTON_NEGEDGE = true;
-        param.mode = TIME;
-    }
-
-    SN74HC595_Write();
-    MODE_Button_Clear();
-}
-
-/*
- * Down Button Interrupt Service Routine
- */
 
 void down_button_ISR(void) {
 
     // Add custom IOCCF3 code
 
-    DOWN_Button_Clear();
+    SN74HC595_Write();
+    Down_Int_Clear();
+    Global_Int_Enable();
 }
 
-/*
- * Up Button Interrupt Service Routine
-*/
 void up_button_ISR(void) {
 
     // Add custom IOCCF4 code
 
-    UP_Button_Clear();
+    SN74HC595_Write();
+    Up_Int_Clear();
+    Global_Int_Enable();
 }
 
-/*
- * Left Button Interrupt Service Routine
- */
 void left_button_ISR(void) {
-
     if (param.digit == 1){
-        param.digit == 6;
+        param.digit == 3;
     } else {
         param.digit--;
     }
 
-    LEFT_Button_Clear();
+    SN74HC595_Write();
+    Left_Int_Clear();
+    Global_Int_Enable();
 }
 
-/*
- * Right Button Interrupt Service Routine
- */
 void right_button_ISR(void) {
 
-    if (param.digit == 6){
+    if (param.digit == 3){
         param.digit = 1;
     } else {
         param.digit++;
     }
 
-    RIGHT_Button_Clear();
+    SN74HC595_Write();
+    Right_Int_Clear();
+    Global_Int_Enable();
+}
+
+void mode_button_ISR(void) {
+    if (mode == DATESEL){
+        /* Switch to time set mode after setting date */
+        mode = TIMESEL;
+        digit = 1;
+    } else if (mode == TIMESEL){
+        /* Switch to time display mode after setting time */
+        mode = TIME;
+    } else if {mode == TIME){
+        /* Switch to date display mode while button is pushed */
+        MODE_BUTTON_POSEDGE = true;
+        MODE_BUTTON_NEGEDGE = false;
+        mode = DATE;
+    } else {
+        /* Switch back to time display mode when button is released */
+        MODE_BUTTON_POSEDGE = false;
+        MODE_BUTTON_NEGEDGE = true;
+        mode = TIME;
+    }
+
+    SN74HC595_Write();
+    Mode_Int_Clear();
+    Global_Int_Enable();
 }
 
 void interrupt Interrupt_Handler(void){
+    // Global interrupt automatically disabled upon receiving interrupt
+
+    /* Determining cause of interrupt and running appropriate ISR */
     if (PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1){
         if (IOCBFbits.IOCBF7 == 1) mode_button_ISR();
         if (IOCCFbits.IOCCF3 == 1) down_button_ISR();
