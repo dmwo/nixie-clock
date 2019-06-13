@@ -32,12 +32,16 @@ void SPI2_Wait_Buffer(void){
 
 void SN74HC595_Write(void){
     if (mode == TIME || mode == TIMESEL){
-        SPI2_Write(lookup_ones[secRTC.ones]   << 4 | lookup_tens[secRTC.tens)];
-        SPI2_Write(lookup_ones[minRTC.ones]   << 4 | lookup_tens[minRTC.tens)];
-        SPI2_Write(lookup_ones[hourRTC.ones]  << 4 | lookup_tens[hourRTC.tens)];
+        SPI2_Write(lookup_ones[secRTC.ones]   << 4 | lookup_tens[secRTC.tens]);
+        SPI2_Write(lookup_ones[minRTC.ones]   << 4 | lookup_tens[minRTC.tens]);
+        SPI2_Write(lookup_ones[hourRTC.ones]  << 4 | lookup_tens[hourRTC.tens]);
     } else if (mode == DATE || mode == DATESEL){
-        SPI2_Write(lookup_ones[yearRTC.ones]  << 4 | lookup_tens[yearRTC.tens)];
-        SPI2_Write(lookup_ones[monthRTC.ones] << 4 | lookup_tens[monthRTC.tens)];
-        SPI2_Write(lookup_ones[dateRTC.ones]  << 4 | lookup_tens[dateRTC.tens)];
+        SPI2_Write(lookup_ones[yearRTC.ones]  << 4 | lookup_tens[yearRTC.tens]);
+        SPI2_Write(lookup_ones[monthRTC.ones] << 4 | lookup_tens[monthRTC.tens]);
+        SPI2_Write(lookup_ones[dateRTC.ones]  << 4 | lookup_tens[dateRTC.tens]);
+    } else {
+        SPI2_Write(lookup_ones[wkdayRTC.ones] << 4 | lookup_tens[0]);
+        SPI2_Write(lookup_ones[0] << 4 | lookup_tens[0]);
+        SPI2_Write(lookup_ones[0] << 4 | lookup_tens[0]);
     }
 }

@@ -1,22 +1,43 @@
-#include <xc.h>  
+#include <xc.h>
 
-#define OUTPUT    0
-#define INPUT     1
-#define PORTA     0
-#define PORTB     1
-#define PORTC     2
-#define SDO2      0x16
-#define SCK2      0x15
-#define SDI2_PIN  4
-#define SDI2_PORT PORTB
-#define SDO2_PIN  5
-#define SDO2_PORT PORTB
-#define SCK2_PIN  6
-#define SCK2_PORT PORTB
-#define DATESEL
-#define TIMESEL
-#define TIME
-#define DATE
+/* Macro definitions */
+#define OUTPUT     0
+#define INPUT      1
+#define PORTA      0
+#define PORTB      1
+#define PORTC      2
+#define SDO2       0x16
+#define SCK2       0x15
+#define SDI2_PIN   4
+#define SDI2_PORT  PORTB
+#define SDO2_PIN   5
+#define SDO2_PORT  PORTB
+#define SCK2_PIN   6
+#define SCK2_PORT  PORTB
+#define DATESEL    0
+#define WKDAYSEL   1
+#define TIMESEL    2
+#define TIME       3
+#define DATE       4
+#define SECSEL     0
+#define MINSEL     1
+#define HRSEL      2
+#define YRSEL      0
+#define MONSEL     1
+#define DAYSEL     2
+#define WKDSEL     0
+#define SECMAX     59
+#define MINMAX     59
+#define HRMAX      23
+#define YRMAX      99
+#define MONMAX     12
+#define DAYMAX     31
+#define WKDMAX     7
+#define MONMIN     1
+#define DAYMIN     1
+#define WKDMIN     1
+#define BCD_TO_DEC 0
+#define DEC_TO_BCD 1
 
 /* Button port and pin locations */
 #define UP_BUTTON             TRISCBITS.TRISC4
@@ -51,17 +72,8 @@
 #define Right_Int_Clear()       (IOCCFbits.IOCCF7 = 0)
 #define Mode_Int_Clear()        (IOCBFbits.IOCBF7 = 0)
 
-typedef struct {
-    uint8_t mode = DATESEL;
-    uint8_t digit = 0;
-    uint8_t num1 = 0;
-    uint8_t num2 = 0;
-    uint8_t num3 = 0;
-} Param_t;
-
-extern volatile Param_t init;
 extern volatile uint8_t mode = DATESEL;
 extern volatile uint8_t digit = 0;
-extern volatile char num[3] = 0;
+extern volatile char num[4];
 
 void GPIO_Init(void);

@@ -67,53 +67,104 @@ void Interrupt_Init(void){
     Timer_Int_Enable();
 }
 
-void down_button_ISR(void) {
-    if (num[digit] == 0){
-        if mode
-    } else num[digit]++;
+uint8_t convert_BCD(uint8_t val, bool dir){
+    if (dir == BCD_TO_DEC) return ((val >> 4) * 10 + (val & 0xF));
+    else return (((val / 10) << 4) | (val % 10));
+}
 
+void set_nixie(void){
+    if (mode == DATESEL){
+        dateRTC.tens  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0xF0) >> 4;
+        dateRTC.ones  =  convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0x0F;
+        monthRTC.tens = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0xF0) >> 4;
+        monthRTC.ones =  convert_BCD(num[MONSEL], DEC_TO_BCD) & 0x0F;
+        yearRTC.tens  = (convert_BCD(num[YRSEL], DEC_TO_BCD)  & 0xF0) >> 4;
+        yearRTC.ones  =  convert_BCD(num[YRSEL], DEC_TO_BCD)  & 0x0F;
+    } else if (mode == WKDSEL){
+        wkdayRTC.ones = num[WKDSEL];
+    } else {
+        secRTC.tens  = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0xF0) >> 4;
+        secRTC.ones  =  convert_BCD(num[SECSEL], DEC_TO_BCD) & 0x0F;
+        minRTC.tens  = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0xF0) >> 4;
+        minRTC.ones  =  convert_BCD(num[MINSEL], DEC_TO_BCD) & 0x0F;
+        hourRTC.tens = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
+        hourRTC.ones =  convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0x0F;
+        RTCC_Set();
+    }
+}
+
+void nixie_toggle(void){
+
+}
+
+void down_button_ISR(void){
+    if (mode == DATESEL){
+        if (digit == YRSEL && num[digit] == YRMIN) num[digit] = YRMAX;
+        else if (digit == MONSEL && num[digit] == MONMIN) num[digit] = MONMAX;
+        else if (digit == DAYSEL && num[digit] == DAYMIN) num[digit] = DAYMAX;
+    } else if (mode == WKDAYSEL){
+        if (digit == WKDSEL && num[digit] == WKDMIN) num[digit] = WKDMAX;
+    } else if (mode == TIMESEL){
+        if (digit == SECSEL && num[digit] == SECMIN) num[digit] = SECMAX;
+        else if (digit == MINSEL && num[digit] == MINMIN) num[digit] = MINMAX;
+        else if (digit == HRSEL && num[digit] == HRMIN) num[digit] = HRMAX;
+    } else num[digit]--;
+
+    set_nixie();
     SN74HC595_Write();
     Down_Int_Clear();
     Global_Int_Enable();
 }
 
-void up_button_ISR(void) {
+void up_button_ISR(void){
+    if (mode == DATESEL){
+        if (digit == YRSEL && num[digit] == YRMAX) num[digit] = 0;
+        else if (digit == MONSEL && num[digit] == MONMAX) num[digit] = MONMIN;
+        else if (digit == DAYSEL && num[digit] == DAYMAX) num[digit] = DAYMIN;
+    } else if (mode == WKDAYSEL){
+        if (digit == WKDSEL && num[digit] == WKDMAX) num[digit] = WKDMIN;
+    } else if (mode == TIMESEL){
+        if (digit == SECSEL && num[digit] == SECMAX) num[digit] = 0;
+        else if (digit == MINSEL && num[digit] == MINMAX) num[digit] = 0;
+        else if (digit == HRSEL && num[digit] == HRMAX) num[digit] = 0;
+    } else num[digit]++;
 
-    // Add custom IOCCF4 code
-
+    set_nixie();
     SN74HC595_Write();
     Up_Int_Clear();
     Global_Int_Enable();
 }
 
-void left_button_ISR(void) {
-    if (param.digit == 0) param.digit == 2;
-    else param.digit--;
-    }
+void left_button_ISR(void){
+    /* Cycle left through digits */
+    if (mode == WKDAYSEL) return;
+    else if (digit == 2) digit == 0;
+    else digit++;
 
-    SN74HC595_Write();
     Left_Int_Clear();
     Global_Int_Enable();
 }
 
-void right_button_ISR(void) {
+void right_button_ISR(void){
+    /* Cycle right through digits */
+    if (mode == WKDAYSEL) return;
+    else if (digit == 0) digit = 2;
+    else digit--;
 
-    if (param.digit == 2){
-        param.digit = 0;
-    } else {
-        param.digit++;
-    }
-
-    SN74HC595_Write();
     Right_Int_Clear();
     Global_Int_Enable();
 }
 
-void mode_button_ISR(void) {
+void mode_button_ISR(void){
     if (mode == DATESEL){
+        mode = WKDAYSEL;
+        digit = 0;
+        num[0] = 0;
+    } else if (mode == WKDAYSEL){
         /* Switch to time set mode after setting date */
         mode = TIMESEL;
         digit = 0;
+        for (int i = 0; i < 3; i++) num[i] = 0;
     } else if (mode == TIMESEL){
         /* Switch to time display mode after setting time */
         mode = TIME;

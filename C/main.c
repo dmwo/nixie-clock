@@ -5,9 +5,10 @@
  * Created on 23 December 2017, 16:07
  */
 
-#include "nixie.h"
+#include "gpio.h"
 #include "rtcc.h"
 #include "shift.h"
+#include "timer.h"
 
 /*
  * 
@@ -23,7 +24,9 @@ void main(void) {
     Global_Int_Enable();
     Peripheral_Int_Enable();
 
+    while (mode != TIME) nixie_toggle();
+
     while (1){
-        
+
     }
 }
