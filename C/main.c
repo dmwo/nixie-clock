@@ -24,7 +24,7 @@ void main(void) {
     Global_Int_Enable();
     Peripheral_Int_Enable();
 
-    while (mode != TIME) nixie_toggle();
+    while (mode != TIMEDISP || mode != DATEDISP) nixie_toggle();
 
     while (1){
 
