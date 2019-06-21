@@ -90,7 +90,9 @@ void set_nixie(void){
 
 void nixie_toggle(void){
     for (int i = 0; i < DELAY_TICK; i++);
-
+    if (digit == DAYSEL || digit == HRSEL) // toggle nixies 1 and 2
+    else if (digit == MONSEL || digit == MINSEL) // toggle nixies 3 and 4
+    else // toggle nixies 5 and 6
 }
 
 void down_button_ISR(void){
@@ -118,8 +120,8 @@ void up_button_ISR(void){
 void left_button_ISR(void){
     /* Cycle left through digits */
     if (mode == WKDAYSET) break;
-    else if (mode == DATESET && digit == 2) digit = 0;
-    else if (mode == TIMESET && digit == 6) digit = 4;
+    else if (mode == DATESET && digit == YRSEL) digit = DAYSEL;
+    else if (mode == TIMESET && digit == SECSEL) digit = HRSEL;
     else digit++;
 
     Left_Int_Clear();
@@ -129,8 +131,8 @@ void left_button_ISR(void){
 void right_button_ISR(void){
     /* Cycle right through digits */
     if (mode == WKDAYSET) break;
-    else if (mode == DATESET && digit == 0) digit = 2;
-    else if (mode == TIMESET && digit == 4) digit = 6;
+    else if (mode == DATESET && digit == DAYSEL) digit = YRSEL;
+    else if (mode == TIMESET && digit == HRSEL) digit = SECSEL;
     else digit--;
 
     Right_Int_Clear();
@@ -141,11 +143,11 @@ void mode_button_ISR(void){
     if (mode == DATESET){
         /* Switch to weekday set mode after setting date */
         mode = WKDAYSET;
-        digit = 3;
+        digit = WKDSEL;
     } else if (mode == WKDAYSET){
         /* Switch to time set mode after setting weekday */
         mode = TIMESET;
-        digit = 4;
+        digit = HRSEL;
     } else if (mode == TIMESET){
         /* Switch to time display mode after setting time */
         mode = TIMEDISP;
