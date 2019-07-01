@@ -1,6 +1,18 @@
 #include "gpio.h"
 
 /******************************************************************************
+ * filename: gpio.c                                                           *
+ *                                                                            *
+ * purpose: Contains functions pertaining to the operation of the GPIO.       *
+ *          Specifically, the buttons used to set the time and date of the    *
+ *          clock and the interrupts associated with their functioning.       *
+ *                                                                            *
+ * date created:
+ *                                                                            *
+ * authors: Dylan Oh                                                          *
+ *****************************************************************************/
+
+/******************************************************************************
  * Configuring Ports and Peripherals                                          *
  ******************************************************************************/
 
@@ -8,7 +20,6 @@ void GPIO_Init(void){
     AD1PCFGL = 0xFFFF;
 
     /* Setting SPI pins */
-    
     TRISBbits.TRISB5 = OUTPUT; // Set pin B5 as SDO2 input
     RB5PPS = SDO2;
 
@@ -28,11 +39,11 @@ void GPIO_Init(void){
     TRISCBITS.TRISC1 = OUTPUT; // High voltage switch
 
     /* Setting the IO direction for the buttons */
-    UP_BUTTON    = INPUT; // Up button
-    DOWN_BUTTON  = INPUT; // Down button
-    LEFT_BUTTON  = INPUT; // Left button
-    RIGHT_BUTTON = INPUT; // Right button
-    MODE_BUTTON  = INPUT; // Mode button
+    UP_BUTTON    = INPUT;
+    DOWN_BUTTON  = INPUT;
+    LEFT_BUTTON  = INPUT;
+    RIGHT_BUTTON = INPUT;
+    MODE_BUTTON  = INPUT;
 }
 
 /******************************************************************************
@@ -65,34 +76,6 @@ void Interrupt_Init(void){
 
     IOC_Int_Enable();
     Timer_Int_Enable();
-}
-
-uint8_t convert_BCD(uint8_t val, bool dir){
-    if (dir == BCD_TO_DEC) return ((val >> 4) * 10 + (val & 0xF));
-    else return (((val / 10) << 4) | (val % 10));
-}
-
-void set_nixie(void){
-    dateRTC.tens  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0xF0) >> 4;
-    monthRTC.tens = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0xF0) >> 4;
-    yearRTC.tens  = (convert_BCD(num[YRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
-    secRTC.tens   = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0xF0) >> 4;
-    minRTC.tens   = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0xF0) >> 4;
-    hourRTC.tens  = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
-    dateRTC.ones  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0x0F);
-    monthRTC.ones = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0x0F);
-    yearRTC.ones  = (convert_BCD(num[YRSEL],  DEC_TO_BCD) & 0x0F);
-    secRTC.ones   = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0x0F);
-    minRTC.ones   = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0x0F);
-    hourRTC.ones  = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0x0F);
-    wkdayRTC.ones = num[WKDSEL];
-}
-
-void nixie_toggle(void){
-    for (int i = 0; i < DELAY_TICK; i++);
-    if (digit == DAYSEL || digit == HRSEL) // toggle nixies 1 and 2
-    else if (digit == MONSEL || digit == MINSEL) // toggle nixies 3 and 4
-    else // toggle nixies 5 and 6
 }
 
 void down_button_ISR(void){

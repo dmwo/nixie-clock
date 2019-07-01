@@ -71,3 +71,13 @@ extern volatile char maxval[7] = {31, 12, 99, 7, 23, 59, 59};
 extern volatile char minval[7] = {1, 1, 0, 1, 0, 0, 0};
 
 void GPIO_Init(void);
+void Interrupt_Init(void);
+uint8_t convert_BCD(uint8_t, bool);
+void set_nixie(void);
+void nixie_toggle(void);
+void down_button_ISR(void);
+void up_button_ISR(void);
+void left_button_ISR(void);
+void right_button_ISR(void);
+void mode_button_ISR(void);
+void interrupt Interrupt_Handler(void);

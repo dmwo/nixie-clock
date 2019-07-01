@@ -78,7 +78,6 @@ void RTCC_Set(void){
 void RTCC_Read(void){
     uint8_t data;
 
-    /* Reading seconds data from RTCC */
     I2C1_Start();
     I2C1_Write(CTL_IN_W);
     I2C1_Write(RTCSEC.ADDR);
