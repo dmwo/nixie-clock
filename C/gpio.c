@@ -73,42 +73,32 @@ uint8_t convert_BCD(uint8_t val, bool dir){
 }
 
 void set_nixie(void){
-    if (mode == DATESEL){
-        dateRTC.tens  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0xF0) >> 4;
-        dateRTC.ones  =  convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0x0F;
-        monthRTC.tens = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0xF0) >> 4;
-        monthRTC.ones =  convert_BCD(num[MONSEL], DEC_TO_BCD) & 0x0F;
-        yearRTC.tens  = (convert_BCD(num[YRSEL], DEC_TO_BCD)  & 0xF0) >> 4;
-        yearRTC.ones  =  convert_BCD(num[YRSEL], DEC_TO_BCD)  & 0x0F;
-    } else if (mode == WKDSEL){
-        wkdayRTC.ones = num[WKDSEL];
-    } else {
-        secRTC.tens  = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0xF0) >> 4;
-        secRTC.ones  =  convert_BCD(num[SECSEL], DEC_TO_BCD) & 0x0F;
-        minRTC.tens  = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0xF0) >> 4;
-        minRTC.ones  =  convert_BCD(num[MINSEL], DEC_TO_BCD) & 0x0F;
-        hourRTC.tens = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
-        hourRTC.ones =  convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0x0F;
-        RTCC_Set();
-    }
+    dateRTC.tens  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0xF0) >> 4;
+    monthRTC.tens = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0xF0) >> 4;
+    yearRTC.tens  = (convert_BCD(num[YRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
+    secRTC.tens   = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0xF0) >> 4;
+    minRTC.tens   = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0xF0) >> 4;
+    hourRTC.tens  = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0xF0) >> 4;
+    dateRTC.ones  = (convert_BCD(num[DAYSEL], DEC_TO_BCD) & 0x0F);
+    monthRTC.ones = (convert_BCD(num[MONSEL], DEC_TO_BCD) & 0x0F);
+    yearRTC.ones  = (convert_BCD(num[YRSEL],  DEC_TO_BCD) & 0x0F);
+    secRTC.ones   = (convert_BCD(num[SECSEL], DEC_TO_BCD) & 0x0F);
+    minRTC.ones   = (convert_BCD(num[MINSEL], DEC_TO_BCD) & 0x0F);
+    hourRTC.ones  = (convert_BCD(num[HRSEL],  DEC_TO_BCD) & 0x0F);
+    wkdayRTC.ones = num[WKDSEL];
 }
 
 void nixie_toggle(void){
-
+    for (int i = 0; i < DELAY_TICK; i++);
+    if (digit == DAYSEL || digit == HRSEL) // toggle nixies 1 and 2
+    else if (digit == MONSEL || digit == MINSEL) // toggle nixies 3 and 4
+    else // toggle nixies 5 and 6
 }
 
 void down_button_ISR(void){
-    if (mode == DATESEL){
-        if (digit == YRSEL && num[digit] == YRMIN) num[digit] = YRMAX;
-        else if (digit == MONSEL && num[digit] == MONMIN) num[digit] = MONMAX;
-        else if (digit == DAYSEL && num[digit] == DAYMIN) num[digit] = DAYMAX;
-    } else if (mode == WKDAYSEL){
-        if (digit == WKDSEL && num[digit] == WKDMIN) num[digit] = WKDMAX;
-    } else if (mode == TIMESEL){
-        if (digit == SECSEL && num[digit] == SECMIN) num[digit] = SECMAX;
-        else if (digit == MINSEL && num[digit] == MINMIN) num[digit] = MINMAX;
-        else if (digit == HRSEL && num[digit] == HRMIN) num[digit] = HRMAX;
-    } else num[digit]--;
+    /* Decrease value of current digit unless at minimum */
+    if (num[digit] == minval[digit]) num[digit] = maxval[digit];
+    else num[digit]--;
 
     set_nixie();
     SN74HC595_Write();
@@ -117,17 +107,9 @@ void down_button_ISR(void){
 }
 
 void up_button_ISR(void){
-    if (mode == DATESEL){
-        if (digit == YRSEL && num[digit] == YRMAX) num[digit] = 0;
-        else if (digit == MONSEL && num[digit] == MONMAX) num[digit] = MONMIN;
-        else if (digit == DAYSEL && num[digit] == DAYMAX) num[digit] = DAYMIN;
-    } else if (mode == WKDAYSEL){
-        if (digit == WKDSEL && num[digit] == WKDMAX) num[digit] = WKDMIN;
-    } else if (mode == TIMESEL){
-        if (digit == SECSEL && num[digit] == SECMAX) num[digit] = 0;
-        else if (digit == MINSEL && num[digit] == MINMAX) num[digit] = 0;
-        else if (digit == HRSEL && num[digit] == HRMAX) num[digit] = 0;
-    } else num[digit]++;
+    /* Increase value of current digit unless at maximum */
+    if (num[digit] == maxval[digit]) num[digit] = minval[digit];
+    else num[digit]++;
 
     set_nixie();
     SN74HC595_Write();
@@ -137,8 +119,9 @@ void up_button_ISR(void){
 
 void left_button_ISR(void){
     /* Cycle left through digits */
-    if (mode == WKDAYSEL) return;
-    else if (digit == 2) digit == 0;
+    if (mode == WKDAYSET) break;
+    else if (mode == DATESET && digit == YRSEL) digit = DAYSEL;
+    else if (mode == TIMESET && digit == SECSEL) digit = HRSEL;
     else digit++;
 
     Left_Int_Clear();
@@ -147,8 +130,9 @@ void left_button_ISR(void){
 
 void right_button_ISR(void){
     /* Cycle right through digits */
-    if (mode == WKDAYSEL) return;
-    else if (digit == 0) digit = 2;
+    if (mode == WKDAYSET) break;
+    else if (mode == DATESET && digit == DAYSEL) digit = YRSEL;
+    else if (mode == TIMESET && digit == HRSEL) digit = SECSEL;
     else digit--;
 
     Right_Int_Clear();
@@ -156,28 +140,28 @@ void right_button_ISR(void){
 }
 
 void mode_button_ISR(void){
-    if (mode == DATESEL){
-        mode = WKDAYSEL;
-        digit = 0;
-        num[0] = 0;
-    } else if (mode == WKDAYSEL){
-        /* Switch to time set mode after setting date */
-        mode = TIMESEL;
-        digit = 0;
-        for (int i = 0; i < 3; i++) num[i] = 0;
-    } else if (mode == TIMESEL){
+    if (mode == DATESET){
+        /* Switch to weekday set mode after setting date */
+        mode = WKDAYSET;
+        digit = WKDSEL;
+    } else if (mode == WKDAYSET){
+        /* Switch to time set mode after setting weekday */
+        mode = TIMESET;
+        digit = HRSEL;
+    } else if (mode == TIMESET){
         /* Switch to time display mode after setting time */
-        mode = TIME;
-    } else if {mode == TIME){
+        mode = TIMEDISP;
+        RTCC_Set();
+    } else if (mode == TIMEDISP){
         /* Switch to date display mode while button is pushed */
         MODE_BUTTON_POSEDGE = true;
         MODE_BUTTON_NEGEDGE = false;
-        mode = DATE;
+        mode = DATEDISP;
     } else {
         /* Switch back to time display mode when button is released */
         MODE_BUTTON_POSEDGE = false;
         MODE_BUTTON_NEGEDGE = true;
-        mode = TIME;
+        mode = TIMEDISP;
     }
 
     SN74HC595_Write();

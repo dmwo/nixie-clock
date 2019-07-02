@@ -19,13 +19,15 @@ void main(void) {
     GPIO_Init();
     SPI2_Init();
     Interrupt_Init();
-    // I2C1_Init();
+    I2C1_Init();
 
     Global_Int_Enable();
     Peripheral_Int_Enable();
 
-    while (mode != TIME) nixie_toggle();
+    /* Setting the clock; nixies toggle every half second */
+    while (mode != TIMEDISP || mode != DATEDISP) nixie_toggle();
 
+    /* Normal operation; time running */
     while (1){
 
     }

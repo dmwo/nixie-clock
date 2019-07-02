@@ -1,4 +1,5 @@
 #include <xc.h>
+#include "rtcc.h"
 
 /* Macro definitions */
 #define OUTPUT     0
@@ -14,30 +15,21 @@
 #define SDO2_PORT  PORTB
 #define SCK2_PIN   6
 #define SCK2_PORT  PORTB
-#define DATESEL    0
-#define WKDAYSEL   1
-#define TIMESEL    2
-#define TIME       3
-#define DATE       4
-#define SECSEL     0
-#define MINSEL     1
-#define HRSEL      2
-#define YRSEL      0
+#define DATESET    0
+#define WKDAYSET   1
+#define TIMESET    2
+#define TIMEDISP   3
+#define DATEDISP   4
+#define DAYSEL     0
 #define MONSEL     1
-#define DAYSEL     2
-#define WKDSEL     0
-#define SECMAX     59
-#define MINMAX     59
-#define HRMAX      23
-#define YRMAX      99
-#define MONMAX     12
-#define DAYMAX     31
-#define WKDMAX     7
-#define MONMIN     1
-#define DAYMIN     1
-#define WKDMIN     1
+#define YRSEL      2
+#define WKDSEL     3
+#define HRSEL      4
+#define MINSEL     5
+#define SECSEL     6
 #define BCD_TO_DEC 0
 #define DEC_TO_BCD 1
+#define DELAY_TICK (_XTAL_FREQ / 2)
 
 /* Button port and pin locations */
 #define UP_BUTTON            TRISCBITS.TRISC4
@@ -74,6 +66,8 @@
 
 extern volatile uint8_t mode = DATESEL;
 extern volatile uint8_t digit = 0;
-extern volatile char num[4];
+extern volatile char num[7];
+extern volatile char maxval[7] = {31, 12, 99, 7, 23, 59, 59};
+extern volatile char minval[7] = {1, 1, 0, 1, 0, 0, 0};
 
 void GPIO_Init(void);
