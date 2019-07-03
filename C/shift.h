@@ -20,9 +20,9 @@
 /* 
  * Lookup tables change the order of the BCD inputs so that they are fed into
  * the shift registers properly. Original BCD in the form DBCA, lookup_ones
- * transforms to CBDA, lookup_tens to BDAC.
+ * transforms to ADBC, lookup_tens to CADB.
  */
-
+//CHANGE
 static const __flash uint8_t lookup_ones[10] = 
 {0, 1, 4, 5, 8, 9, 12, 13, 2, 3};
 
