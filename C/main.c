@@ -9,6 +9,7 @@
 #include "rtcc.h"
 #include "shift.h"
 #include "timer.h"
+#include "nixie.h"
 
 /*
  * 

@@ -1,4 +1,5 @@
 #include <xc.h>
+#include "pic16f18445.h"
 #include "rtcc.h"
 
 /* Macro definitions */
@@ -31,12 +32,16 @@
 #define DEC_TO_BCD 1
 #define DELAY_TICK (_XTAL_FREQ / 2)
 
-/* Button port and pin locations */
-#define UP_BUTTON            TRISCBITS.TRISC4
-#define DOWN_BUTTON          TRISCBITS.TRISC3
-#define LEFT_BUTTON          TRISCBITS.TRISC6
-#define RIGHT_BUTTON         TRISCBITS.TRISC7
-#define MODE_BUTTON          TRISBBITS.TRISB7
+/* Direction registers for buttons and switches */
+#define DIR_BUTTON_UP        TRISCbits.TRISC4
+#define DIR_BUTTON_DOWN      TRISCbits.TRISC3
+#define DIR_BUTTON_LEFT      TRISCbits.TRISC6
+#define DIR_BUTTON_RIGHT     TRISCbits.TRISC7
+#define DIR_BUTTON_MODE      TRISBbits.TRISB7
+#define DIR_SW_HRDAY         TRISAbits.TRISA0
+#define DIR_SW_MINMON        TRISBbits.TRISB4
+#define DIR_SW_SECYR         TRISBbits.TRISB5
+#define DIR_SW_HV            TRISCbits.TRISC0
 
 /* Negative edge detection bits */
 #define UP_BUTTON_NEGEDGE    IOCCNbits.IOCCN4
@@ -70,14 +75,124 @@ extern volatile char num[7];
 extern volatile char maxval[7] = {31, 12, 99, 7, 23, 59, 59};
 extern volatile char minval[7] = {1, 1, 0, 1, 0, 0, 0};
 
+/*
+ * function name: GPIO_Init
+ *
+ * description: Initialises the GPIO pins:
+ *                  - I2C SCK and SCL pins
+ *                  - SPI SDI and SDO pins
+ *                  - Transistor switch direction
+ *                  - Button direction
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void GPIO_Init(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: Interrupt_Init
+ *
+ * description: Initialises the button and timer interrupts.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void Interrupt_Init(void);
-uint8_t convert_BCD(uint8_t, bool);
-void set_nixie(void);
-void nixie_toggle(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: down_button_ISR
+ *
+ * description: Interrupt routine that decreases the value of the currently
+ *              selected digit when the down button is pressed.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void down_button_ISR(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: up_button_ISR
+ *
+ * description: Interrupt routine that increases the value of the currently
+ *              selected digit when the up button is pressed.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void up_button_ISR(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: left_button_ISR
+ *
+ * description: Interrupt routine that regresses the digit being selected when
+ *              the left button is pressed.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void left_button_ISR(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: right_button_ISR
+ *
+ * description: Interrupt routine that advances the digit being selected when 
+ *              the right button is pressed.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void right_button_ISR(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: mode_button_ISR
+ *
+ * description: Interrupt routine that advances the mode of the clock when the
+ *              mode button is pressed. Begins in date selection mode, then
+ *              continues to weekday selection, time selection, time display,
+ *              and date display. Date display is transient; button must be
+ *              held down.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void mode_button_ISR(void);
+
+/*****************************************************************************/
+
+/*
+ * function name: Interrupt_Handler
+ *
+ * description: Interrupt handler for the buttons.
+ *
+ * parameters: none
+ *
+ * returns: none
+ */
+
 void interrupt Interrupt_Handler(void);

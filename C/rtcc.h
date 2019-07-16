@@ -1,4 +1,5 @@
 #include <xc.h>
+#include "pic16f18445.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,15 +90,12 @@ extern volatile RTCC_t yearRTC;
  *              - setting I2C mode to master
  *              - setting the baud rate
  *
- * arguments:
- * argument     type        description
- * --------     ----        -----------
- * baud         uint8_t     desired baud rate of the I2C
+ * arguments: uint8_t, desired baud rate of the I2C
  * 
  * returns: none
  */
 
-void I2C1_Init(int baud);
+void I2C1_Init(int);
 
 /*****************************************************************************/
 
@@ -169,15 +167,12 @@ void I2C1_Stop(void);
  * description: Writes a byte of data to the I2C TX buffer and waits for an
  *              ACK from the slave before returning
  *
- * arguments:
- * argument     type        description
- * --------     ----        -----------
- * data         uint8_t     data to be sent by the master
+ * arguments: uint8_t, data to be sent by the master
  * 
  * returns: none
  */
 
-void I2C1_Write(uint8_t data);
+void I2C1_Write(uint8_t);
 
 /*****************************************************************************/
 

@@ -36,8 +36,10 @@ void set_nixie(void){
 }
 
 void nixie_toggle(void){
+    SW_HRDAY = SW_MINMON = SW_SECYR = 1;
     for (int i = 0; i < DELAY_TICK; i++);
-    if (digit == DAYSEL || digit == HRSEL) // toggle nixies 1 and 2
-    else if (digit == MONSEL || digit == MINSEL) // toggle nixies 3 and 4
-    else // toggle nixies 5 and 6
+    if      (digit == DAYSEL || digit == HRSEL)  SW_HRDAY = 0;
+    else if (digit == MONSEL || digit == MINSEL) SW_MINMON = 0;
+    else if (digit == YRSEL  || digit == SECSEL) SW_SECYR = 0;
+    for (int i = 0; i < DELAY_TICK; i++);
 }

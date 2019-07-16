@@ -32,18 +32,18 @@ void GPIO_Init(void){
     SSP2CLKPPSbits.PORT = SCK2_PORT;
     RB6PPS = SCK2;
 
-    /* Setting all the output pins for the transistor switches */
-    TRISABITS.TRISA0 = OUTPUT; // Minute / month switch
-    TRISABITS.TRISA1 = OUTPUT; // Second / year switch
-    TRISCBITS.TRISC0 = OUTPUT; // Hour / day switch
-    TRISCBITS.TRISC1 = OUTPUT; // High voltage switch
+    /* Setting the IO direction for the transistor switches */
+    DIR_SW_MINMON = OUTPUT; // Minute / month switch
+    DIR_SW_SECYR  = OUTPUT; // Second / year switch
+    DIR_SW_HRDAY  = OUTPUT; // Hour / day switch
+    DIR_SW_HV     = OUTPUT; // High voltage switch
 
     /* Setting the IO direction for the buttons */
-    UP_BUTTON    = INPUT;
-    DOWN_BUTTON  = INPUT;
-    LEFT_BUTTON  = INPUT;
-    RIGHT_BUTTON = INPUT;
-    MODE_BUTTON  = INPUT;
+    DIR_BUTTON_UP    = INPUT;
+    DIR_BUTTON_DOWN  = INPUT;
+    DIR_BUTTON_LEFT  = INPUT;
+    DIR_BUTTON_RIGHT = INPUT;
+    DIR_BUTTON_MODE  = INPUT;
 }
 
 /******************************************************************************
