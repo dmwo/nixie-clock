@@ -19,18 +19,20 @@
 void GPIO_Init(void){
     AD1PCFGL = 0xFFFF;
 
-    /* Setting SPI pins */
+    /* Setting IO direction for SPI pins */
     DIR_SDO2 = OUTPUT; // Set pin B5 as SDO2 input
-    RB5PPS   = SDO2;   // Choose SDO2 function in peripheral pin select for RB5
     DIR_SDI2 = OUTPUT; // Set pin B4 as SDI2 input
+    DIR_SCK2 = OUTPUT; // Set pin B6 as SCK2 input
+
+    /* Setting port and pin locations for SPI */
     SSP2DATPPSbits.PIN  = SDI2_PIN;
     SSP2DATPPSbits.PORT = SDI2_PORT;
+    SSP2CLKPPSbits.PIN  = SCK2_PIN;
+    SSP2CLKPPSbits.PORT = SCK2_PORT;
 
-    /* Setting I2C pins */
-    // TRISBbits.TRISB6    = OUTPUT; // Set pin B6 as SCK2 input
-    // SSP2CLKPPSbits.PIN  = SCK2_PIN;
-    // SSP2CLKPPSbits.PORT = SCK2_PORT;
-    // RB6PPS = SCK2;
+    /* Assigning functions in peripheral pin select */
+    RB5PPS = SDO2;
+    RB6PPS = SCK2;
 
     /* Setting the IO direction for the transistor switches */
     DIR_SW_MINMON = OUTPUT; // Minute / month switch
@@ -78,17 +80,6 @@ void Interrupt_Init(void){
     Timer_Int_Enable();
 }
 
-void down_button_ISR(void){
-    /* Decrease value of current digit unless at minimum */
-    if (num[digit] == minval[digit]) num[digit] = maxval[digit];
-    else num[digit]--;
-
-    set_nixie();
-    SN74HC595_Write();
-    Down_Int_Clear();
-    Global_Int_Enable();
-}
-
 void up_button_ISR(void){
     /* Increase value of current digit unless at maximum */
     if (num[digit] == maxval[digit]) num[digit] = minval[digit];
@@ -97,6 +88,17 @@ void up_button_ISR(void){
     set_nixie();
     SN74HC595_Write();
     Up_Int_Clear();
+    Global_Int_Enable();
+}
+
+void down_button_ISR(void){
+    /* Decrease value of current digit unless at minimum */
+    if (num[digit] == minval[digit]) num[digit] = maxval[digit];
+    else num[digit]--;
+
+    set_nixie();
+    SN74HC595_Write();
+    Down_Int_Clear();
     Global_Int_Enable();
 }
 
@@ -157,6 +159,7 @@ void interrupt Interrupt_Handler(void){
 
     /* Determining cause of interrupt and running appropriate ISR */
     if (PIE0bits.IOCIE == 1 && PIR0bits.IOCIF == 1){
+        sleep = false;
         if (IOCBFbits.IOCBF7 == 1) mode_button_ISR();
         if (IOCCFbits.IOCCF3 == 1) down_button_ISR();
         if (IOCCFbits.IOCCF4 == 1) up_button_ISR();

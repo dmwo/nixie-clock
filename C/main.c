@@ -30,6 +30,8 @@ void main(void) {
 
     /* Normal operation; time running */
     while (1){
-
+        for (int i = 0; i < _XTAL_FREQ * 10; i++);
+        sleep = true;
+        EMU_Sleep();
     }
 }

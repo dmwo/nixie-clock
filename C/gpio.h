@@ -2,7 +2,20 @@
 #include "pic16f18445.h"
 #include "rtcc.h"
 
-/* Macro definitions */
+/******************************************************************************
+ * filename: gpio.h                                                           *
+ *                                                                            *
+ * purpose: Contains functions pertaining to the operation of the 
+ *                                                                            *
+ * date created:
+ *                                                                            *
+ * authors: Dylan Oh                                                          *
+ *****************************************************************************/
+
+/******************************************************************************
+ * MACRO DEFINITIONS                                                          *
+ *****************************************************************************/
+
 #define OUTPUT     0
 #define INPUT      1
 #define BCD_TO_DEC 0
@@ -58,6 +71,7 @@
 
 #define DIR_SDO2             TRISBbits.TRISB5
 #define DIR_SDI2             TRISBbits.TRISB4
+#define DIR_SCK2             TRISBbits.TRISB6
 
 /* Negative edge detection bits */
 #define UP_BUTTON_NEGEDGE    IOCCNbits.IOCCN4
