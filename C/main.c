@@ -20,7 +20,7 @@ void main(void) {
     GPIO_Init();
     SPI2_Init();
     Interrupt_Init();
-    I2C1_Init();
+    // I2C1_Init();
 
     Global_Int_Enable();
     Peripheral_Int_Enable();

@@ -20,17 +20,17 @@ void GPIO_Init(void){
     AD1PCFGL = 0xFFFF;
 
     /* Setting SPI pins */
-    TRISBbits.TRISB5 = OUTPUT; // Set pin B5 as SDO2 input
-    RB5PPS = SDO2;
-
-    TRISBbits.TRISB4    = OUTPUT; // Set pin B4 as SDI2 input
+    DIR_SDO2 = OUTPUT; // Set pin B5 as SDO2 input
+    RB5PPS   = SDO2;   // Choose SDO2 function in peripheral pin select for RB5
+    DIR_SDI2 = OUTPUT; // Set pin B4 as SDI2 input
     SSP2DATPPSbits.PIN  = SDI2_PIN;
     SSP2DATPPSbits.PORT = SDI2_PORT;
 
-    TRISBbits.TRISB6    = OUTPUT; // Set pin B6 as SCK2 input
-    SSP2CLKPPSbits.PIN  = SCK2_PIN;
-    SSP2CLKPPSbits.PORT = SCK2_PORT;
-    RB6PPS = SCK2;
+    /* Setting I2C pins */
+    // TRISBbits.TRISB6    = OUTPUT; // Set pin B6 as SCK2 input
+    // SSP2CLKPPSbits.PIN  = SCK2_PIN;
+    // SSP2CLKPPSbits.PORT = SCK2_PORT;
+    // RB6PPS = SCK2;
 
     /* Setting the IO direction for the transistor switches */
     DIR_SW_MINMON = OUTPUT; // Minute / month switch
@@ -103,9 +103,9 @@ void up_button_ISR(void){
 void left_button_ISR(void){
     /* Cycle left through digits */
     if (mode == WKDAYSET) break;
-    else if (mode == DATESET && digit == YRSEL) digit = DAYSEL;
-    else if (mode == TIMESET && digit == SECSEL) digit = HRSEL;
-    else digit++;
+    else if (digit == DAYSEL) digit = YRSEL;
+    else if (digit == HRSEL) digit = SECSEL;
+    else digit--;
 
     Left_Int_Clear();
     Global_Int_Enable();
@@ -114,9 +114,9 @@ void left_button_ISR(void){
 void right_button_ISR(void){
     /* Cycle right through digits */
     if (mode == WKDAYSET) break;
-    else if (mode == DATESET && digit == DAYSEL) digit = YRSEL;
-    else if (mode == TIMESET && digit == HRSEL) digit = SECSEL;
-    else digit--;
+    else if (digit == YRSEL) digit = DAYSEL;
+    else if (digit == SECSEL) digit = HRSEL;
+    else digit++;
 
     Right_Int_Clear();
     Global_Int_Enable();
@@ -134,7 +134,7 @@ void mode_button_ISR(void){
     } else if (mode == TIMESET){
         /* Switch to time display mode after setting time */
         mode = TIMEDISP;
-        RTCC_Set();
+        // RTCC_Set();
     } else if (mode == TIMEDISP){
         /* Switch to date display mode while button is pushed */
         MODE_BUTTON_POSEDGE = true;

@@ -5,6 +5,27 @@
 /* Macro definitions */
 #define OUTPUT     0
 #define INPUT      1
+#define BCD_TO_DEC 0
+#define DEC_TO_BCD 1
+#define DELAY_TICK (_XTAL_FREQ / 2)
+
+/* Clock mode macros */
+#define DATESET    0
+#define WKDAYSET   1
+#define TIMESET    2
+#define TIMEDISP   3
+#define DATEDISP   4
+
+/* Clock setting macros */
+#define DAYSEL     0
+#define MONSEL     1
+#define YRSEL      2
+#define WKDSEL     3
+#define HRSEL      4
+#define MINSEL     5
+#define SECSEL     6
+
+/* Serial communication macros */
 #define PORTA      0
 #define PORTB      1
 #define PORTC      2
@@ -16,21 +37,12 @@
 #define SDO2_PORT  PORTB
 #define SCK2_PIN   6
 #define SCK2_PORT  PORTB
-#define DATESET    0
-#define WKDAYSET   1
-#define TIMESET    2
-#define TIMEDISP   3
-#define DATEDISP   4
-#define DAYSEL     0
-#define MONSEL     1
-#define YRSEL      2
-#define WKDSEL     3
-#define HRSEL      4
-#define MINSEL     5
-#define SECSEL     6
-#define BCD_TO_DEC 0
-#define DEC_TO_BCD 1
-#define DELAY_TICK (_XTAL_FREQ / 2)
+
+/* Port registers for switches */
+#define SW_HRDAY  PORTAbits.RA0
+#define SW_MINMON PORTBbits.RB4
+#define SW_SECYR  PORTBbits.RB5
+#define SW_HV     PORTCbits.RC0 //move to timer
 
 /* Direction registers for buttons and switches */
 #define DIR_BUTTON_UP        TRISCbits.TRISC4
@@ -38,10 +50,14 @@
 #define DIR_BUTTON_LEFT      TRISCbits.TRISC6
 #define DIR_BUTTON_RIGHT     TRISCbits.TRISC7
 #define DIR_BUTTON_MODE      TRISBbits.TRISB7
+
 #define DIR_SW_HRDAY         TRISAbits.TRISA0
 #define DIR_SW_MINMON        TRISBbits.TRISB4
 #define DIR_SW_SECYR         TRISBbits.TRISB5
 #define DIR_SW_HV            TRISCbits.TRISC0
+
+#define DIR_SDO2             TRISBbits.TRISB5
+#define DIR_SDI2             TRISBbits.TRISB4
 
 /* Negative edge detection bits */
 #define UP_BUTTON_NEGEDGE    IOCCNbits.IOCCN4
@@ -69,7 +85,7 @@
 #define Right_Int_Clear()       (IOCCFbits.IOCCF7 = 0)
 #define Mode_Int_Clear()        (IOCBFbits.IOCBF7 = 0)
 
-extern volatile uint8_t mode = DATESEL;
+extern volatile uint8_t mode = DAYSEL;
 extern volatile uint8_t digit = 0;
 extern volatile char num[7];
 extern volatile char maxval[7] = {31, 12, 99, 7, 23, 59, 59};

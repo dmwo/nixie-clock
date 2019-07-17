@@ -18,10 +18,7 @@
  * MACRO DEFINITIONS                                                          *
  *****************************************************************************/
 
-#define SW_HRDAY  PORTAbits.RA0
-#define SW_MINMON PORTBbits.RB4
-#define SW_SECYR  PORTBbits.RB5
-#define EN_HV     PORTCbits.RC0 //move to timer
+
 
 /******************************************************************************
  * FUNCTION DECLARATIONS                                                      *
